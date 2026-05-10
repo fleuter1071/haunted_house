@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 112" role="img" aria-label="Haunted library ghost">
+  <defs>
+    <radialGradient id="ghostGlow" cx="50%" cy="52%" r="50%">
+      <stop offset="0" stop-color="#b7fff0" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#b7fff0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="56" cy="56" r="52" fill="url(#ghostGlow)"/>
+  <path d="M28 50c0-22 13-36 28-36s28 14 28 36v31c-8 10-15-2-22 7-6 8-12-9-20-1-6 6-14 3-14-6z" fill="#b7fff0" stroke="#eafff8" stroke-width="4"/>
+  <path d="M34 52c-15-4-20-17-8-27M78 52c15-4 20-17 8-27" fill="none" stroke="#eafff8" stroke-width="5" stroke-linecap="round" opacity=".62"/>
+  <circle cx="45" cy="45" r="6" fill="#11201f"/>
+  <circle cx="67" cy="45" r="6" fill="#11201f"/>
+  <path d="M48 61c5 5 11 5 16 0" fill="none" stroke="#11201f" stroke-width="4" stroke-linecap="round"/>
+  <path d="M42 72c-4 9 4 11 0 20M56 73c-5 10 5 12 0 22M70 72c-4 9 4 11 0 20" fill="none" stroke="#11201f" stroke-width="3" stroke-linecap="round" opacity=".28"/>
+  <path d="M15 82c14-10 22-4 33-14M97 82c-14-10-22-4-33-14" fill="none" stroke="#b7fff0" stroke-width="4" stroke-linecap="round" opacity=".42"/>
+</svg>

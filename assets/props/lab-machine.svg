@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 150" role="img" aria-label="Mad scientist laboratory machine">
+  <ellipse cx="110" cy="134" rx="84" ry="10" fill="#05060a" opacity=".35"/>
+  <rect x="24" y="30" width="172" height="90" rx="10" fill="#21151a"/>
+  <rect x="36" y="42" width="148" height="66" rx="6" fill="#3c2a32"/>
+  <rect x="48" y="54" width="58" height="42" rx="4" fill="#151926" stroke="#e7c46a" stroke-opacity=".35" stroke-width="3"/>
+  <circle cx="77" cy="75" r="18" fill="#263133"/>
+  <path d="M65 76h24M77 64v24" stroke="#74f2a3" stroke-width="4" stroke-linecap="round"/>
+  <rect x="120" y="52" width="48" height="16" rx="3" fill="#4b321f"/>
+  <rect x="120" y="76" width="48" height="16" rx="3" fill="#4b321f"/>
+  <circle cx="130" cy="60" r="4" fill="#74f2a3"/>
+  <circle cx="144" cy="60" r="4" fill="#e7c46a"/>
+  <circle cx="158" cy="60" r="4" fill="#e84d5b"/>
+  <path d="M130 85h28" stroke="#74f2a3" stroke-width="4" stroke-linecap="round"/>
+  <path d="M38 32V18h22v14M160 32V18h22v14" stroke="#8a6338" stroke-width="8" stroke-linecap="round"/>
+  <path d="M60 18c10-12 28-12 38 0s28 12 38 0" fill="none" stroke="#74f2a3" stroke-opacity=".55" stroke-width="5" stroke-linecap="round"/>
+  <path d="M28 112h164" stroke="#8a6338" stroke-width="8" stroke-linecap="round"/>
+  <path d="M42 120v18M178 120v18" stroke="#05060a" stroke-opacity=".65" stroke-width="8" stroke-linecap="round"/>
+  <rect x="24" y="30" width="172" height="90" rx="10" fill="none" stroke="#05060a" stroke-opacity=".72" stroke-width="6"/>
+  <path d="M40 44h140" stroke="#f6f0df" stroke-opacity=".16" stroke-width="3"/>
+</svg>

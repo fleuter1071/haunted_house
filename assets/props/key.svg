@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Glowing brass stair key">
+  <circle cx="48" cy="48" r="36" fill="#e7c46a" opacity=".16"/>
+  <circle cx="48" cy="48" r="25" fill="#e7c46a" opacity=".12"/>
+  <path d="M28 48c0-11 9-20 20-20 9 0 16 6 19 14h10v9h-8v7h-8v8H47v-9c-10-1-19-9-19-20z" fill="#8a6338"/>
+  <path d="M35 48c0-7 6-13 13-13 6 0 11 4 13 10h20v6H67v7h-8v8H48v-8c-7 0-13-5-13-10z" fill="#e7c46a"/>
+  <circle cx="48" cy="48" r="7" fill="#21151a"/>
+  <circle cx="48" cy="48" r="3" fill="#f6f0df" opacity=".5"/>
+  <rect x="64" y="45" width="21" height="6" fill="#f6f0df" opacity=".25"/>
+  <path d="M30 49c0-12 8-22 20-23M42 35c5-3 13 1 16 7" fill="none" stroke="#f6f0df" stroke-opacity=".42" stroke-width="3" stroke-linecap="round"/>
+  <path d="M26 48c0-12 10-22 22-22 10 0 18 6 21 15h10c4 0 7 3 7 7s-3 7-7 7h-5v7h-8v8H47c-12 0-21-10-21-22z" fill="none" stroke="#05060a" stroke-opacity=".66" stroke-width="5" stroke-linejoin="round"/>
+</svg>

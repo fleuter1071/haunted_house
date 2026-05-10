@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 170" role="img" aria-label="Glass containment chamber with captive silhouette">
+  <ellipse cx="75" cy="154" rx="54" ry="10" fill="#05060a" opacity=".38"/>
+  <rect x="38" y="8" width="74" height="144" rx="30" fill="#151926"/>
+  <rect x="46" y="18" width="58" height="116" rx="24" fill="#74f2a3" opacity=".18"/>
+  <path d="M52 28c12-12 35-12 46 0v88c-10 12-35 12-46 0z" fill="#8fd9d0" opacity=".28"/>
+  <path d="M57 32c10-9 27-9 36 0" stroke="#f6f0df" stroke-opacity=".45" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="75" cy="67" r="13" fill="#21151a"/>
+  <path d="M75 82 92 116H58z" fill="#3c2a32"/>
+  <path d="M62 97c8 5 18 5 26 0" stroke="#e7c46a" stroke-opacity=".4" stroke-width="4" stroke-linecap="round"/>
+  <rect x="30" y="128" width="90" height="16" rx="4" fill="#4b321f"/>
+  <rect x="24" y="144" width="102" height="12" rx="4" fill="#21151a"/>
+  <path d="M34 42h16M100 42h16M34 104h16M100 104h16" stroke="#8a6338" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="75" cy="144" r="5" fill="#74f2a3"/>
+  <path d="M47 20 37 10M103 20l10-10" stroke="#8a6338" stroke-width="6" stroke-linecap="round"/>
+  <rect x="38" y="8" width="74" height="144" rx="30" fill="none" stroke="#05060a" stroke-opacity=".7" stroke-width="6"/>
+  <path d="M55 28v86" stroke="#f6f0df" stroke-opacity=".18" stroke-width="5" stroke-linecap="round"/>
+</svg>

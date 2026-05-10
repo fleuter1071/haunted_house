@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 144" role="img" aria-label="Staircase leading upward">
+  <rect x="18" y="8" width="92" height="128" rx="8" fill="#2e2b36"/>
+  <rect x="32" y="18" width="64" height="20" fill="#15131b"/>
+  <g>
+    <rect x="30" y="112" width="68" height="14" fill="#3a3546"/>
+    <rect x="35" y="94" width="58" height="14" fill="#292634"/>
+    <rect x="40" y="76" width="48" height="14" fill="#3a3546"/>
+    <rect x="45" y="58" width="38" height="14" fill="#292634"/>
+    <rect x="50" y="40" width="28" height="14" fill="#3a3546"/>
+  </g>
+  <path d="M38 24v104M90 24v104" stroke="#e7c46a" stroke-opacity=".45" stroke-width="5" stroke-linecap="round"/>
+  <path d="M64 34 48 58h10v38h12V58h10z" fill="#e7c46a" opacity=".82"/>
+  <text x="64" y="131" text-anchor="middle" font-family="Trebuchet MS, Arial" font-size="14" font-weight="700" fill="#f6f0df">UP</text>
+  <rect x="18" y="8" width="92" height="128" rx="8" fill="none" stroke="#f6f0df" stroke-opacity=".22" stroke-width="3"/>
+</svg>
