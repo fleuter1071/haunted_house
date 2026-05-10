@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Haunted Estate Rescue</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="game-panel" aria-label="Haunted Estate Rescue game">
+      <div class="top-bar">
+        <div>
+          <p class="eyebrow">Haunted Estate Rescue</p>
+          <h1 id="roomName">Front Yard</h1>
+        </div>
+        <div class="hud">
+          <div class="hud-item">
+            <span>Objective</span>
+            <strong id="objective">Enter the estate</strong>
+          </div>
+          <div class="hud-item inventory">
+            <span>Inventory</span>
+            <strong id="inventory">None</strong>
+          </div>
+          <div class="fear-wrap" aria-label="Fear meter">
+            <span>Fear</span>
+            <div class="fear-track">
+              <div id="fearFill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <canvas id="game" width="960" height="600" aria-label="Playable haunted house canvas"></canvas>
+
+      <div class="controls">
+        <span>Move: WASD / Arrows</span>
+        <span>Flashlight: Space</span>
+        <span>Interact: E</span>
+        <button id="restartButton" type="button">Restart</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="message" class="message" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
