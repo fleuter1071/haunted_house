@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 144" role="img" aria-label="Crazed scientist in lab coat with glowing vial">
+  <ellipse cx="56" cy="130" rx="34" ry="9" fill="#05060a" opacity=".38"/>
+  <path d="M28 61c4-18 14-29 28-29s24 11 28 29l-5 52c-2 12-10 20-23 20s-21-8-23-20z" fill="#f6f0df" stroke="#05060a" stroke-opacity=".72" stroke-width="5"/>
+  <path d="M41 61h30l-5 56H46z" fill="#2a2630"/>
+  <path d="M56 62v55M41 75h30" stroke="#05060a" stroke-opacity=".42" stroke-width="3"/>
+  <path d="M36 27 19 15l21 1-6-15 17 11L61 0l6 18 18-9-8 16 20 2-22 9" fill="#f6f0df" stroke="#05060a" stroke-opacity=".62" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="56" cy="38" r="18" fill="#d9c7b3" stroke="#05060a" stroke-opacity=".72" stroke-width="4"/>
+  <path d="M40 36c8-5 24-5 32 0" stroke="#5a3c24" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="48" cy="40" r="7" fill="#151926" stroke="#74f2a3" stroke-width="3"/>
+  <circle cx="64" cy="40" r="7" fill="#151926" stroke="#74f2a3" stroke-width="3"/>
+  <path d="M55 40h2" stroke="#74f2a3" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="48" cy="40" r="2" fill="#74f2a3"/>
+  <circle cx="64" cy="40" r="2" fill="#74f2a3"/>
+  <path d="M49 53c5 4 10 4 15 0" stroke="#5a3c24" stroke-width="3" stroke-linecap="round"/>
+  <path d="M33 71 14 89M79 71l19 8" stroke="#d9c7b3" stroke-width="8" stroke-linecap="round"/>
+  <path d="M15 88h22" stroke="#74f2a3" stroke-width="5" stroke-linecap="round"/>
+  <rect x="88" y="72" width="14" height="28" rx="5" fill="#151926" stroke="#05060a" stroke-opacity=".7" stroke-width="3"/>
+  <rect x="91" y="80" width="8" height="15" fill="#74f2a3"/>
+  <circle cx="95" cy="75" r="4" fill="#74f2a3" opacity=".75"/>
+  <path d="M42 112 34 132M70 112l8 20" stroke="#24212a" stroke-width="8" stroke-linecap="round"/>
+  <rect x="25" y="128" width="19" height="7" rx="3" fill="#151821"/>
+  <rect x="68" y="128" width="19" height="7" rx="3" fill="#151821"/>
+  <path d="M23 60c7 6 15 9 25 10M89 66c-8 4-16 5-25 4" stroke="#74f2a3" stroke-opacity=".32" stroke-width="4" stroke-linecap="round"/>
+</svg>

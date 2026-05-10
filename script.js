@@ -21,6 +21,8 @@ const FLASHLIGHT_SPREAD = Math.PI / 4.8;
 
 const assetSources = {
   player: "assets/characters/player.svg",
+  friendCaptive: "assets/characters/friend-captive.svg",
+  madScientist: "assets/characters/mad-scientist.svg",
   ghost: "assets/enemies/ghost.svg",
   experiment: "assets/enemies/experiment.svg",
   bookshelf: "assets/props/bookshelf.svg",
@@ -440,7 +442,7 @@ function handleInteract() {
     const allDisabled = room.nodes.every((node) => !node.active);
     if (allDisabled && circleRectOverlap(state.player.x, state.player.y, PLAYER_RADIUS + 9, chamber)) {
       state.won = true;
-      showMessage("You pull her free. The estate exhales.");
+      showMessage("You pull them free. The estate exhales.");
     } else if (!allDisabled && circleRectOverlap(state.player.x, state.player.y, PLAYER_RADIUS + 9, chamber)) {
       showMessage("The containment field is still powered.");
     }
@@ -475,6 +477,8 @@ function drawRoom(room) {
     ctx.fillRect(wall.x, wall.y + wall.h - 5, wall.w, 5);
     ctx.fillStyle = room.wall;
   }
+
+  drawForegroundProps(room);
 }
 
 function drawFloorPattern(room) {
@@ -499,6 +503,7 @@ function drawFloorPattern(room) {
 
 function drawProps(room) {
   for (const prop of room.props) {
+    if (room.name === "Attic Laboratory" && (prop.type === "chamber" || prop.type === "scientist")) continue;
     if (prop.type === "path") {
       drawPath(prop);
     }
@@ -513,6 +518,15 @@ function drawProps(room) {
     if (prop.type === "shelf") drawShelf(prop);
     if (prop.type === "clue") drawClue(prop);
     if (prop.type === "machine") drawMachine(prop);
+    if (prop.type === "chamber") drawChamber(prop);
+    if (prop.type === "scientist") drawScientist(prop);
+  }
+}
+
+function drawForegroundProps(room) {
+  if (room.name !== "Attic Laboratory") return;
+
+  for (const prop of room.props) {
     if (prop.type === "chamber") drawChamber(prop);
     if (prop.type === "scientist") drawScientist(prop);
   }
@@ -935,6 +949,7 @@ function drawMachine(prop) {
 function drawChamber(prop) {
   const disabled = currentRoom().nodes?.every((node) => !node.active);
   if (drawAsset("chamber", prop.x - 12, prop.y - 20, prop.w + 24, prop.h + 34)) {
+    drawCaptiveFriend(prop);
     if (disabled) {
       ctx.save();
       ctx.strokeStyle = "rgba(246, 240, 223, 0.62)";
@@ -995,7 +1010,20 @@ function drawChamber(prop) {
   ctx.stroke();
 }
 
+function drawCaptiveFriend(prop) {
+  ctx.save();
+  ctx.fillStyle = "rgba(255, 244, 184, 0.18)";
+  ctx.beginPath();
+  ctx.ellipse(prop.x + prop.w / 2, prop.y + prop.h / 2, prop.w * 0.34, prop.h * 0.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  if (drawAsset("friendCaptive", prop.x + 14, prop.y - 18, prop.w - 28, prop.h + 42)) return;
+}
+
 function drawScientist(prop) {
+  if (drawAsset("madScientist", prop.x - 38, prop.y - 64, 76, 98)) return;
+
   ctx.fillStyle = "#f6f0df";
   ctx.fillRect(prop.x - 13, prop.y - 8, 26, 48);
   ctx.strokeStyle = "rgba(21, 16, 28, 0.5)";

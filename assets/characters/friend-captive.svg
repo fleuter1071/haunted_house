@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 150" role="img" aria-label="Captive friend asking for help inside the chamber">
+  <defs>
+    <radialGradient id="friendGlow" cx="50%" cy="48%" r="48%">
+      <stop offset="0" stop-color="#fff4b8" stop-opacity=".34"/>
+      <stop offset=".56" stop-color="#74f2a3" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#74f2a3" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="60" cy="132" rx="38" ry="11" fill="#05060a" opacity=".34"/>
+  <circle cx="60" cy="70" r="58" fill="url(#friendGlow)"/>
+  <rect x="25" y="20" width="70" height="108" rx="28" fill="#74f2a3" opacity=".12"/>
+  <path d="M32 67c6-20 17-31 28-31s22 11 28 31l-8 48c-3 13-11 21-20 21s-17-8-20-21z" fill="#21151a" stroke="#05060a" stroke-opacity=".76" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M42 67c3-14 10-22 18-22s15 8 18 22l-6 42c-2 8-6 14-12 14s-10-6-12-14z" fill="#d96b86"/>
+  <path d="M43 72h34" stroke="#f6f0df" stroke-opacity=".9" stroke-width="6" stroke-linecap="round"/>
+  <path d="M60 72v43" stroke="#f6f0df" stroke-opacity=".7" stroke-width="4"/>
+  <circle cx="60" cy="38" r="21" fill="#e8caa6" stroke="#05060a" stroke-opacity=".76" stroke-width="6"/>
+  <path d="M40 37c2-18 17-26 34-18 8 4 12 11 10 23-13-7-28-9-44-5z" fill="#5a3c24"/>
+  <circle cx="53" cy="41" r="3" fill="#21151a"/>
+  <circle cx="68" cy="41" r="3" fill="#21151a"/>
+  <path d="M52 51c6 4 12 4 18 0" stroke="#8a533c" stroke-width="3" stroke-linecap="round"/>
+  <path d="M42 79 18 58M78 79l24-21" stroke="#e8caa6" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="18" cy="58" r="12" fill="#f6f0df" stroke="#05060a" stroke-opacity=".5" stroke-width="3"/>
+  <circle cx="102" cy="58" r="12" fill="#f6f0df" stroke="#05060a" stroke-opacity=".5" stroke-width="3"/>
+  <path d="M12 45v26M108 45v26" stroke="#74f2a3" stroke-opacity=".78" stroke-width="5" stroke-linecap="round"/>
+  <path d="M43 108 31 137M77 108l12 29" stroke="#24212a" stroke-width="10" stroke-linecap="round"/>
+  <rect x="19" y="134" width="24" height="8" rx="4" fill="#151821"/>
+  <rect x="77" y="134" width="24" height="8" rx="4" fill="#151821"/>
+  <rect x="34" y="8" width="52" height="16" rx="5" fill="#4b321f" stroke="#05060a" stroke-opacity=".58" stroke-width="3"/>
+  <text x="60" y="20" text-anchor="middle" font-family="Trebuchet MS, Arial" font-size="13" font-weight="700" fill="#fff4b8">HELP</text>
+  <path d="M28 33c10-14 22-21 32-21s22 7 32 21" fill="none" stroke="#f6f0df" stroke-opacity=".26" stroke-width="6" stroke-linecap="round"/>
+  <path d="M30 43v58M90 43v58" stroke="#f6f0df" stroke-opacity=".16" stroke-width="5" stroke-linecap="round"/>
+</svg>
