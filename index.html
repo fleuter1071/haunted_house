@@ -45,6 +45,27 @@
 
   <div id="message" class="message" role="status" aria-live="polite"></div>
 
+  <div id="startBriefing" class="briefing-backdrop" role="dialog" aria-modal="true" aria-labelledby="briefingTitle">
+    <section class="briefing-card">
+      <p class="briefing-kicker">Case File: Blackwood Estate</p>
+      <h2 id="briefingTitle">Midnight Rescue</h2>
+      <p class="briefing-story">
+        Your friend vanished after following a strange green glow into Blackwood Estate.
+        Now a crazed scientist has locked them in their attic laboratory, and the house itself is trying to stop you.
+      </p>
+      <p class="briefing-goal">
+        Find the stair key, survive the haunted rooms, disable the lab's power nodes, and rescue your friend before fear takes over.
+      </p>
+      <div class="briefing-controls" aria-label="Game controls">
+        <span><strong>WASD / Arrows</strong> Move</span>
+        <span><strong>Space</strong> Flashlight</span>
+        <span><strong>E</strong> Interact</span>
+      </div>
+      <p class="briefing-footer">Stay in the light. Trust the clues. Do not let fear win.</p>
+      <button id="startButton" class="start-button" type="button">Enter the Estate</button>
+    </section>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>

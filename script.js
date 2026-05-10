@@ -6,6 +6,8 @@ const inventoryEl = document.getElementById("inventory");
 const fearFillEl = document.getElementById("fearFill");
 const messageEl = document.getElementById("message");
 const restartButton = document.getElementById("restartButton");
+const startBriefingEl = document.getElementById("startBriefing");
+const startButton = document.getElementById("startButton");
 
 const W = canvas.width;
 const H = canvas.height;
@@ -183,6 +185,7 @@ const rooms = {
 let state;
 let lastTime = performance.now();
 let messageTimer = 0;
+let gameStarted = false;
 
 function rect(x, y, w, h) {
   return { x, y, w, h };
@@ -1700,6 +1703,7 @@ function fillRoundRect(x, y, w, h, radius, color) {
 }
 
 function loop(now) {
+  if (!gameStarted) return;
   const dt = Math.min(0.08, (now - lastTime) / 1000);
   lastTime = now;
   update(dt);
@@ -1707,10 +1711,22 @@ function loop(now) {
   requestAnimationFrame(loop);
 }
 
+function startGame() {
+  if (gameStarted) return;
+  gameStarted = true;
+  startBriefingEl.classList.add("hidden");
+  lastTime = performance.now();
+  requestAnimationFrame(loop);
+}
+
 window.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
   if (["arrowup", "arrowdown", "arrowleft", "arrowright", " ", "w", "a", "s", "d", "e"].includes(key)) {
     event.preventDefault();
+  }
+  if (!gameStarted) {
+    if (key === "enter") startGame();
+    return;
   }
   if (!keys.has(key)) justPressed.add(key);
   keys.add(key);
@@ -1721,8 +1737,10 @@ window.addEventListener("keyup", (event) => {
 });
 
 restartButton.addEventListener("click", resetGame);
+startButton.addEventListener("click", startGame);
 
 resetGame();
 loadAssets().then(() => {
-  requestAnimationFrame(loop);
+  render();
+  startButton.focus();
 });
