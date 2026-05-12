@@ -237,11 +237,13 @@ function resetGame() {
     fear: 0,
     flashlight: true,
     libraryPuzzle: { order: ["moon", "eye", "flame"], progress: 0, solved: false, penaltyTimer: 0 },
+    endingPhase: "playing",
+    endingTimer: 0,
     won: false,
     pulse: 0
   };
 
-  showMessage("Find her before the experiment begins.");
+  showMessage("Find your friend before the experiment begins.");
   updateHud();
 }
 
@@ -259,8 +261,12 @@ function updateHud() {
   const room = currentRoom();
   roomNameEl.textContent = room.name;
 
-  if (state.won) {
+  if (state.won || state.endingPhase === "complete") {
     objectiveEl.textContent = "Escaped together";
+  } else if (state.endingPhase === "chamberOpening") {
+    objectiveEl.textContent = "The chamber is breaking open";
+  } else if (state.endingPhase === "reunited") {
+    objectiveEl.textContent = "Get your friend out";
   } else if (state.roomId === "foyer" && state.inventory.includes("stair key")) {
     objectiveEl.textContent = "Unlock the staircase";
   } else if (state.roomId === "library") {
@@ -284,6 +290,13 @@ function update(dt) {
 
   if (state.won) {
     state.pulse += dt;
+    return;
+  }
+
+  if (state.endingPhase !== "playing") {
+    updateEnding(dt);
+    updateHud();
+    justPressed.clear();
     return;
   }
 
@@ -433,7 +446,7 @@ function handleInteract() {
         node.active = false;
         state.fear = Math.max(0, state.fear - 10);
         const remaining = room.nodes.filter((powerNode) => powerNode.active).length;
-        showMessage(remaining ? "Power node disabled." : "The machine is vulnerable.");
+        showMessage(remaining ? "Power node disabled." : "The containment field is failing. Get to your friend!");
         return;
       }
     }
@@ -441,11 +454,39 @@ function handleInteract() {
     const chamber = { x: 424, y: 256, w: 112, h: 96 };
     const allDisabled = room.nodes.every((node) => !node.active);
     if (allDisabled && circleRectOverlap(state.player.x, state.player.y, PLAYER_RADIUS + 9, chamber)) {
-      state.won = true;
-      showMessage("You pull them free. The estate exhales.");
+      startRescueSequence();
     } else if (!allDisabled && circleRectOverlap(state.player.x, state.player.y, PLAYER_RADIUS + 9, chamber)) {
       showMessage("The containment field is still powered.");
     }
+  }
+}
+
+function startRescueSequence() {
+  if (state.endingPhase !== "playing") return;
+  state.endingPhase = "chamberOpening";
+  state.endingTimer = 0;
+  state.flashlight = true;
+  state.fear = 0;
+  showMessage("The glass splits. Your friend reaches for you.");
+  updateHud();
+}
+
+function updateEnding(dt) {
+  state.endingTimer += dt;
+  state.pulse += dt;
+
+  if (state.endingPhase === "chamberOpening" && state.endingTimer >= 1.25) {
+    state.endingPhase = "reunited";
+    state.endingTimer = 0;
+    showMessage("You pull them free. The scientist stumbles back.");
+    return;
+  }
+
+  if (state.endingPhase === "reunited" && state.endingTimer >= 2.4) {
+    state.endingPhase = "complete";
+    state.won = true;
+    state.endingTimer = 0;
+    showMessage("You escape Blackwood Estate together.");
   }
 }
 
@@ -459,6 +500,7 @@ function render() {
   drawEnemies(room);
   drawPlayer();
   drawLighting(room);
+  drawEndingSequence();
   drawWinOverlay();
 }
 
@@ -470,15 +512,221 @@ function drawRoom(room) {
   drawProps(room);
   drawRoomPropConnections(room);
 
-  ctx.fillStyle = room.wall;
   for (const wall of room.walls) {
-    ctx.fillRect(wall.x, wall.y, wall.w, wall.h);
-    ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
-    ctx.fillRect(wall.x, wall.y + wall.h - 5, wall.w, 5);
-    ctx.fillStyle = room.wall;
+    drawStyledWall(wall, room);
   }
 
   drawForegroundProps(room);
+}
+
+function drawStyledWall(wall, room) {
+  const style = getWallStyle(room);
+  const horizontal = wall.w >= wall.h;
+
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.24)";
+  ctx.fillRect(wall.x + 4, wall.y + wall.h - 4, wall.w, 8);
+
+  ctx.fillStyle = style.base;
+  ctx.fillRect(wall.x, wall.y, wall.w, wall.h);
+
+  ctx.fillStyle = style.top;
+  if (horizontal) {
+    ctx.fillRect(wall.x, wall.y, wall.w, Math.min(8, wall.h * 0.34));
+  } else {
+    ctx.fillRect(wall.x, wall.y, Math.min(8, wall.w * 0.34), wall.h);
+  }
+
+  ctx.fillStyle = style.shadow;
+  if (horizontal) {
+    ctx.fillRect(wall.x, wall.y + wall.h - 7, wall.w, 7);
+  } else {
+    ctx.fillRect(wall.x + wall.w - 7, wall.y, 7, wall.h);
+  }
+
+  ctx.strokeStyle = style.edge;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(wall.x + 1, wall.y + 1, wall.w - 2, wall.h - 2);
+
+  drawWallMaterial(wall, style, horizontal);
+  ctx.restore();
+}
+
+function getWallStyle(room) {
+  if (room.name === "Front Yard") {
+    return {
+      material: "stone",
+      base: "#20272a",
+      top: "#31393b",
+      shadow: "rgba(5, 6, 10, 0.34)",
+      edge: "rgba(216, 196, 156, 0.18)",
+      detail: "rgba(216, 196, 156, 0.14)"
+    };
+  }
+
+  if (room.name === "Grand Foyer") {
+    return {
+      material: "wood",
+      base: "#2a2230",
+      top: "#3b2a35",
+      shadow: "rgba(5, 6, 10, 0.32)",
+      edge: "rgba(231, 196, 106, 0.2)",
+      detail: "rgba(231, 196, 106, 0.16)"
+    };
+  }
+
+  if (room.name === "Moonlit Library") {
+    return {
+      material: "library",
+      base: "#222536",
+      top: "#30334a",
+      shadow: "rgba(5, 6, 10, 0.36)",
+      edge: "rgba(246, 240, 223, 0.14)",
+      detail: "rgba(79, 135, 168, 0.2)"
+    };
+  }
+
+  return {
+    material: "lab",
+    base: "#263133",
+    top: "#344245",
+    shadow: "rgba(5, 6, 10, 0.34)",
+    edge: "rgba(116, 242, 163, 0.18)",
+    detail: "rgba(116, 242, 163, 0.22)"
+  };
+}
+
+function drawWallMaterial(wall, style, horizontal) {
+  if (style.material === "stone") {
+    drawStoneWallDetail(wall, style, horizontal);
+  } else if (style.material === "wood") {
+    drawWoodWallDetail(wall, style, horizontal);
+  } else if (style.material === "library") {
+    drawLibraryWallDetail(wall, style, horizontal);
+  } else {
+    drawLabWallDetail(wall, style, horizontal);
+  }
+}
+
+function drawStoneWallDetail(wall, style, horizontal) {
+  ctx.strokeStyle = style.detail;
+  ctx.lineWidth = 2;
+  const step = horizontal ? 42 : 36;
+  const inset = 7;
+
+  if (horizontal) {
+    for (let x = wall.x + 12; x < wall.x + wall.w; x += step) {
+      ctx.beginPath();
+      ctx.moveTo(x, wall.y + inset);
+      ctx.lineTo(x + 10, wall.y + wall.h - inset);
+      ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.moveTo(wall.x + 8, wall.y + wall.h / 2);
+    ctx.lineTo(wall.x + wall.w - 8, wall.y + wall.h / 2);
+    ctx.stroke();
+  } else {
+    for (let y = wall.y + 12; y < wall.y + wall.h; y += step) {
+      ctx.beginPath();
+      ctx.moveTo(wall.x + inset, y);
+      ctx.lineTo(wall.x + wall.w - inset, y + 10);
+      ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.moveTo(wall.x + wall.w / 2, wall.y + 8);
+    ctx.lineTo(wall.x + wall.w / 2, wall.y + wall.h - 8);
+    ctx.stroke();
+  }
+}
+
+function drawWoodWallDetail(wall, style, horizontal) {
+  ctx.strokeStyle = style.detail;
+  ctx.lineWidth = 3;
+  const step = 28;
+
+  if (horizontal) {
+    for (let x = wall.x + step; x < wall.x + wall.w; x += step) {
+      ctx.beginPath();
+      ctx.moveTo(x, wall.y + 5);
+      ctx.lineTo(x, wall.y + wall.h - 7);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = "rgba(91, 60, 36, 0.42)";
+    ctx.beginPath();
+    ctx.moveTo(wall.x + 6, wall.y + wall.h - 10);
+    ctx.lineTo(wall.x + wall.w - 6, wall.y + wall.h - 10);
+    ctx.stroke();
+  } else {
+    for (let y = wall.y + step; y < wall.y + wall.h; y += step) {
+      ctx.beginPath();
+      ctx.moveTo(wall.x + 5, y);
+      ctx.lineTo(wall.x + wall.w - 7, y);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = "rgba(91, 60, 36, 0.42)";
+    ctx.beginPath();
+    ctx.moveTo(wall.x + wall.w - 10, wall.y + 6);
+    ctx.lineTo(wall.x + wall.w - 10, wall.y + wall.h - 6);
+    ctx.stroke();
+  }
+}
+
+function drawLibraryWallDetail(wall, style, horizontal) {
+  ctx.strokeStyle = style.detail;
+  ctx.lineWidth = 2;
+
+  if (horizontal) {
+    for (let x = wall.x + 14; x < wall.x + wall.w - 8; x += 18) {
+      const h = 10 + ((x / 18) % 3) * 4;
+      ctx.fillStyle = x % 36 === 0 ? "rgba(208, 166, 75, 0.18)" : "rgba(79, 135, 168, 0.18)";
+      ctx.fillRect(x, wall.y + wall.h - h - 8, 8, h);
+    }
+    ctx.beginPath();
+    ctx.moveTo(wall.x + 8, wall.y + wall.h - 8);
+    ctx.lineTo(wall.x + wall.w - 8, wall.y + wall.h - 8);
+    ctx.stroke();
+  } else {
+    for (let y = wall.y + 14; y < wall.y + wall.h - 8; y += 18) {
+      const w = 10 + ((y / 18) % 3) * 4;
+      ctx.fillStyle = y % 36 === 0 ? "rgba(208, 166, 75, 0.18)" : "rgba(79, 135, 168, 0.18)";
+      ctx.fillRect(wall.x + wall.w - w - 8, y, w, 8);
+    }
+    ctx.beginPath();
+    ctx.moveTo(wall.x + wall.w - 8, wall.y + 8);
+    ctx.lineTo(wall.x + wall.w - 8, wall.y + wall.h - 8);
+    ctx.stroke();
+  }
+}
+
+function drawLabWallDetail(wall, style, horizontal) {
+  ctx.strokeStyle = style.detail;
+  ctx.lineWidth = 2;
+  ctx.setLineDash([14, 10]);
+
+  if (horizontal) {
+    ctx.beginPath();
+    ctx.moveTo(wall.x + 10, wall.y + wall.h / 2);
+    ctx.lineTo(wall.x + wall.w - 10, wall.y + wall.h / 2);
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(wall.x + wall.w / 2, wall.y + 10);
+    ctx.lineTo(wall.x + wall.w / 2, wall.y + wall.h - 10);
+    ctx.stroke();
+  }
+
+  ctx.setLineDash([]);
+  ctx.fillStyle = "rgba(116, 242, 163, 0.18)";
+  const step = 48;
+  if (horizontal) {
+    for (let x = wall.x + 18; x < wall.x + wall.w; x += step) {
+      ctx.fillRect(x, wall.y + 8, 5, 5);
+    }
+  } else {
+    for (let y = wall.y + 18; y < wall.y + wall.h; y += step) {
+      ctx.fillRect(wall.x + 8, y, 5, 5);
+    }
+  }
 }
 
 function drawFloorPattern(room) {
@@ -949,7 +1197,9 @@ function drawMachine(prop) {
 function drawChamber(prop) {
   const disabled = currentRoom().nodes?.every((node) => !node.active);
   if (drawAsset("chamber", prop.x - 12, prop.y - 20, prop.w + 24, prop.h + 34)) {
-    drawCaptiveFriend(prop);
+    if (state.endingPhase === "playing" || state.endingPhase === "chamberOpening") {
+      drawCaptiveFriend(prop);
+    }
     if (disabled) {
       ctx.save();
       ctx.strokeStyle = "rgba(246, 240, 223, 0.62)";
@@ -1629,18 +1879,188 @@ function drawPlayerAura() {
   ctx.restore();
 }
 
+function drawEndingSequence() {
+  if (state.roomId !== "lab" || state.endingPhase === "playing") return;
+
+  const chamber = { x: 424, y: 256, w: 112, h: 96 };
+  const centerX = chamber.x + chamber.w / 2;
+  const centerY = chamber.y + chamber.h / 2;
+
+  if (state.endingPhase === "chamberOpening") {
+    drawChamberBurst(centerX, centerY);
+  }
+
+  if (state.endingPhase === "reunited" || state.endingPhase === "complete" || state.won) {
+    drawReunionMoment();
+  }
+}
+
+function drawChamberBurst(x, y) {
+  const t = Math.min(1, state.endingTimer / 1.25);
+  const pulse = 1 + Math.sin(state.pulse * 18) * 0.08;
+
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  const glow = ctx.createRadialGradient(x, y, 10, x, y, 140 * pulse);
+  glow.addColorStop(0, `rgba(255, 244, 184, ${0.48 * (1 - t * 0.35)})`);
+  glow.addColorStop(0.48, "rgba(116, 242, 163, 0.22)");
+  glow.addColorStop(1, "rgba(116, 242, 163, 0)");
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(x, y, 140 * pulse, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = `rgba(255, 244, 184, ${0.82 - t * 0.32})`;
+  ctx.lineWidth = 5;
+  for (let i = 0; i < 3; i += 1) {
+    ctx.beginPath();
+    ctx.arc(x, y, 28 + t * 96 + i * 26, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.78)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x - 18, y - 52);
+  ctx.lineTo(x - 4, y - 22);
+  ctx.lineTo(x - 16, y + 10);
+  ctx.moveTo(x + 20, y - 48);
+  ctx.lineTo(x + 5, y - 18);
+  ctx.lineTo(x + 18, y + 16);
+  ctx.moveTo(x - 28, y + 32);
+  ctx.lineTo(x, y + 12);
+  ctx.lineTo(x + 26, y + 34);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawReunionMoment() {
+  const friendX = state.player.x + 46;
+  const friendY = state.player.y + 2;
+  const midX = (state.player.x + friendX) / 2;
+  const midY = (state.player.y + friendY) / 2;
+
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  const reunionGlow = ctx.createRadialGradient(midX, midY, 8, midX, midY, 118);
+  reunionGlow.addColorStop(0, "rgba(255, 244, 184, 0.42)");
+  reunionGlow.addColorStop(0.5, "rgba(231, 196, 106, 0.2)");
+  reunionGlow.addColorStop(1, "rgba(231, 196, 106, 0)");
+  ctx.fillStyle = reunionGlow;
+  ctx.beginPath();
+  ctx.arc(midX, midY, 118, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  drawFreedFriend(friendX, friendY);
+  drawReunionSparks(midX, midY);
+  drawScientistDefeatCue();
+}
+
+function drawFreedFriend(x, y) {
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  ctx.beginPath();
+  ctx.ellipse(x, y + 28, 19, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#d96b86";
+  fillRoundRect(x - 11, y - 6, 22, 31, 6, "#d96b86");
+  ctx.strokeStyle = "#f6f0df";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x - 10, y + 2);
+  ctx.lineTo(x - 24, y - 6);
+  ctx.moveTo(x + 10, y + 2);
+  ctx.lineTo(x + 24, y - 6);
+  ctx.stroke();
+
+  ctx.strokeStyle = "#24212a";
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(x - 5, y + 23);
+  ctx.lineTo(x - 10, y + 39);
+  ctx.moveTo(x + 5, y + 23);
+  ctx.lineTo(x + 10, y + 39);
+  ctx.stroke();
+
+  ctx.fillStyle = "#e8caa6";
+  ctx.beginPath();
+  ctx.arc(x, y - 21, 12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#5a3c24";
+  ctx.beginPath();
+  ctx.arc(x - 2, y - 25, 13, Math.PI, Math.PI * 2);
+  ctx.fill();
+  ctx.fillRect(x - 12, y - 26, 24, 5);
+  ctx.fillStyle = "#21151a";
+  ctx.beginPath();
+  ctx.arc(x - 4, y - 21, 2, 0, Math.PI * 2);
+  ctx.arc(x + 5, y - 21, 2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#8a533c";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(x + 1, y - 15, 5, 0, Math.PI);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawReunionSparks(x, y) {
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  ctx.fillStyle = "rgba(255, 244, 184, 0.78)";
+  for (let i = 0; i < 12; i += 1) {
+    const angle = i * (Math.PI * 2 / 12) + state.pulse * 1.6;
+    const radius = 42 + Math.sin(state.pulse * 3 + i) * 9;
+    ctx.beginPath();
+    ctx.arc(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius, i % 3 === 0 ? 3 : 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawScientistDefeatCue() {
+  ctx.save();
+  ctx.globalAlpha = 0.92;
+  ctx.fillStyle = "rgba(9, 10, 16, 0.72)";
+  fillRoundRect(640, 162, 74, 32, 7, "rgba(9, 10, 16, 0.72)");
+  ctx.strokeStyle = "rgba(232, 77, 91, 0.72)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(642, 164, 70, 28);
+  ctx.fillStyle = "#e84d5b";
+  ctx.font = "700 16px Trebuchet MS, Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("NO!", 677, 184);
+
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.28)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(694, 270, 42 + Math.sin(state.pulse * 8) * 4, 0.2, Math.PI * 1.6);
+  ctx.stroke();
+  ctx.restore();
+}
+
 function drawWinOverlay() {
   if (!state.won) return;
 
-  const glow = 0.18 + Math.sin(state.pulse * 3) * 0.05;
-  ctx.fillStyle = `rgba(116, 242, 163, ${glow})`;
+  const glow = 0.2 + Math.sin(state.pulse * 3) * 0.05;
+  ctx.fillStyle = `rgba(231, 196, 106, ${glow})`;
   ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "rgba(9, 10, 16, 0.74)";
+  fillRoundRect(W / 2 - 290, 214, 580, 128, 8, "rgba(9, 10, 16, 0.74)");
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.58)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(W / 2 - 286, 218, 572, 120);
   ctx.fillStyle = "#f6f0df";
   ctx.textAlign = "center";
-  ctx.font = "700 44px Trebuchet MS, Arial";
-  ctx.fillText("Rescue Complete", W / 2, 252);
-  ctx.font = "22px Trebuchet MS, Arial";
-  ctx.fillText("The machine is silent. You escaped the haunted estate together.", W / 2, 294);
+  ctx.font = "700 42px Trebuchet MS, Arial";
+  ctx.fillText("Rescue Complete", W / 2, 262);
+  ctx.font = "20px Trebuchet MS, Arial";
+  ctx.fillText("You found your friend, broke the machine,", W / 2, 300);
+  ctx.fillText("and escaped Blackwood Estate together.", W / 2, 326);
 }
 
 function isItemVisible(item) {
