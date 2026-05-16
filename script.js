@@ -115,7 +115,7 @@ const rooms = {
   },
   library: {
     name: "Creel House Study",
-    objective: "Decode the hidden pattern",
+    objective: "Decode the radio signal",
     floor: "#151926",
     wall: "#252838",
     spawn: { x: 854, y: 300 },
@@ -138,18 +138,14 @@ const rooms = {
       { type: "shelf", x: 562, y: 254, w: 256, h: 38 },
       { type: "shelf", x: 142, y: 398, w: 256, h: 38 },
       { type: "shelf", x: 562, y: 398, w: 256, h: 38 },
-      { type: "clue", x: 428, y: 202, w: 104, h: 62 }
+      { type: "christmasLights", x: 360, y: 176, w: 240, h: 118 },
+      { type: "radio", x: 466, y: 332, w: 80, h: 56 }
     ],
     exits: [
       { x: W - 78, y: 252, w: 42, h: 88, to: "foyer", spawn: { x: 92, y: 286 }, label: "Return to foyer" }
     ],
-    symbols: [
-      { id: "moon", x: 224, y: 130, activated: false },
-      { id: "eye", x: 690, y: 418, activated: false },
-      { id: "flame", x: 288, y: 274, activated: false }
-    ],
     items: [
-      { id: "signal-key", name: "signal key", x: 480, y: 230, hidden: true, requiresPuzzle: true, collected: false }
+      { id: "signal-key", name: "signal key", x: 480, y: 232, hidden: true, requiresPuzzle: true, collected: false }
     ],
     enemies: [
       { id: "library-ghost", x: 482, y: 330, startX: 482, startY: 330, radius: 18, speed: 78, color: "#b7fff0", path: [{ x: 482, y: 174 }, { x: 482, y: 500 }], target: 0, startTarget: 0 }
@@ -294,7 +290,6 @@ function resetGame() {
   for (const room of Object.values(rooms)) {
     if (room.items) room.items.forEach((item) => { item.collected = false; });
     if (room.nodes) room.nodes.forEach((node) => { node.active = true; });
-    if (room.symbols) room.symbols.forEach((symbol) => { symbol.activated = false; });
     if (room.enemies) {
       room.enemies.forEach((enemy) => {
         enemy.x = enemy.startX;
@@ -310,7 +305,15 @@ function resetGame() {
     inventory: [],
     fear: 0,
     flashlight: true,
-    libraryPuzzle: { order: ["moon", "eye", "flame"], progress: 0, solved: false, penaltyTimer: 0 },
+    libraryPuzzle: {
+      clueSeen: false,
+      radioOpen: false,
+      selectedDigit: 0,
+      frequency: [0, 0, 0],
+      answer: [4, 1, 5],
+      solved: false,
+      penaltyTimer: 0
+    },
     endingPhase: "playing",
     endingTimer: 0,
     won: false,
@@ -378,15 +381,28 @@ function update(dt) {
     state.libraryPuzzle.penaltyTimer = Math.max(0, state.libraryPuzzle.penaltyTimer - dt);
   }
 
+  if (state.libraryPuzzle.radioOpen) {
+    handleInput(dt);
+    updateHud();
+    justPressed.clear();
+    return;
+  }
+
   handleInput(dt);
   updateEnemies(dt);
   updateFear(dt);
   handleInteract();
+  updateStudyClueVisibility();
   updateHud();
   justPressed.clear();
 }
 
 function handleInput(dt) {
+  if (state.libraryPuzzle.radioOpen) {
+    handleRadioInput();
+    return;
+  }
+
   if (justPressed.has(" ")) {
     state.flashlight = !state.flashlight;
     showMessage(state.flashlight ? "Flashlight on." : "Flashlight off.");
@@ -409,6 +425,69 @@ function handleInput(dt) {
 
   const speed = 178;
   movePlayer(dx * speed * dt, dy * speed * dt);
+}
+
+function handleRadioInput() {
+  const puzzle = state.libraryPuzzle;
+
+  if (justPressed.has("escape")) {
+    puzzle.radioOpen = false;
+    showMessage("You step back from the radio.");
+    return;
+  }
+
+  if (justPressed.has("arrowleft") || justPressed.has("a")) {
+    puzzle.selectedDigit = Math.max(0, puzzle.selectedDigit - 1);
+  }
+
+  if (justPressed.has("arrowright") || justPressed.has("d")) {
+    puzzle.selectedDigit = Math.min(2, puzzle.selectedDigit + 1);
+  }
+
+  if (justPressed.has("arrowup") || justPressed.has("w")) {
+    puzzle.frequency[puzzle.selectedDigit] = (puzzle.frequency[puzzle.selectedDigit] + 1) % 10;
+  }
+
+  if (justPressed.has("arrowdown") || justPressed.has("s")) {
+    puzzle.frequency[puzzle.selectedDigit] = (puzzle.frequency[puzzle.selectedDigit] + 9) % 10;
+  }
+
+  if (justPressed.has("e") || justPressed.has("enter")) {
+    submitRadioFrequency();
+  }
+}
+
+function updateStudyClueVisibility() {
+  if (state.roomId !== "library" || state.libraryPuzzle.solved) return;
+
+  const lightWall = rooms.library.props.find((prop) => prop.type === "christmasLights");
+  if (!lightWall) return;
+
+  const cluePoint = {
+    x: lightWall.x + lightWall.w / 2,
+    y: lightWall.y + lightWall.h / 2
+  };
+
+  if (state.flashlight && pointInFlashlight(cluePoint.x, cluePoint.y)) {
+    state.libraryPuzzle.clueSeen = true;
+  }
+}
+
+function submitRadioFrequency() {
+  const puzzle = state.libraryPuzzle;
+  const correct = puzzle.frequency.every((digit, index) => digit === puzzle.answer[index]);
+
+  if (correct) {
+    puzzle.solved = true;
+    puzzle.radioOpen = false;
+    state.fear = Math.max(0, state.fear - 10);
+    showMessage("The static clears. Eleven's signal breaks through. The signal key appears.");
+    return;
+  }
+
+  puzzle.penaltyTimer = 3;
+  state.fear = clamp(state.fear + 16, 0, 100);
+  showMessage("Static screams back. Mind Pressure rises.");
 }
 
 function movePlayer(dx, dy) {
@@ -494,12 +573,12 @@ function handleInteract() {
     }
   }
 
-  if (room.symbols && !state.libraryPuzzle.solved) {
-    for (const symbol of room.symbols) {
-      if (!symbol.activated && isSymbolVisible(symbol) && distanceToPlayer(symbol) < 50) {
-        activateLibrarySymbol(symbol);
-        return;
-      }
+  if (state.roomId === "library" && !state.libraryPuzzle.solved) {
+    const radio = room.props.find((prop) => prop.type === "radio");
+    if (radio && circleRectOverlap(state.player.x, state.player.y, PLAYER_RADIUS + 7, radio)) {
+      state.libraryPuzzle.radioOpen = true;
+      showMessage("Tune the radio to the frequency from the lights.");
+      return;
     }
   }
 
@@ -569,13 +648,13 @@ function render() {
   drawRoom(room);
   drawExits(room);
   drawItems(room);
-  drawSymbols(room);
   drawNodes(room);
   drawEnemies(room);
   drawPlayer();
   drawLighting(room);
   drawEndingSequence();
   drawWinOverlay();
+  drawRadioTuningOverlay();
 }
 
 function drawRoom(room) {
@@ -1385,50 +1464,42 @@ function drawCreelStudySurfaceWear() {
 
 function drawCreelStudySignalPath() {
   const room = rooms.library;
-  const clue = room.props.find((prop) => prop.type === "clue");
-  if (!clue) return;
+  const lightWall = room.props.find((prop) => prop.type === "christmasLights");
+  const radio = room.props.find((prop) => prop.type === "radio");
+  if (!lightWall || !radio) return;
 
-  const center = { x: clue.x + clue.w / 2, y: clue.y + clue.h / 2 };
-  const progress = state.libraryPuzzle.solved ? room.symbols.length : state.libraryPuzzle.progress;
+  const lightCenter = { x: lightWall.x + lightWall.w / 2, y: lightWall.y + lightWall.h / 2 };
+  const radioCenter = { x: radio.x + radio.w / 2, y: radio.y + radio.h / 2 };
+  const active = state.libraryPuzzle.clueSeen || state.libraryPuzzle.solved;
 
   ctx.save();
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
-  const clueGlow = ctx.createRadialGradient(center.x, center.y, 8, center.x, center.y, 92);
+  const clueGlow = ctx.createRadialGradient(lightCenter.x, lightCenter.y, 8, lightCenter.x, lightCenter.y, 132);
   clueGlow.addColorStop(0, "rgba(231, 196, 106, 0.14)");
   clueGlow.addColorStop(0.55, "rgba(116, 242, 163, 0.045)");
   clueGlow.addColorStop(1, "rgba(231, 196, 106, 0)");
   ctx.fillStyle = clueGlow;
   ctx.beginPath();
-  ctx.arc(center.x, center.y, 92, 0, Math.PI * 2);
+  ctx.arc(lightCenter.x, lightCenter.y, 132, 0, Math.PI * 2);
   ctx.fill();
 
-  const orderedSymbols = state.libraryPuzzle.order
-    .map((id) => room.symbols.find((symbol) => symbol.id === id))
-    .filter(Boolean);
+  ctx.strokeStyle = active ? "rgba(116, 242, 163, 0.28)" : "rgba(231, 196, 106, 0.085)";
+  ctx.lineWidth = active ? 4 : 2;
+  ctx.setLineDash(active ? [] : [10, 14]);
+  ctx.beginPath();
+  ctx.moveTo(lightCenter.x, lightCenter.y + 18);
+  ctx.bezierCurveTo(420, 306, 528, 292, radioCenter.x, radioCenter.y);
+  ctx.stroke();
 
-  for (let i = 0; i < orderedSymbols.length; i += 1) {
-    const symbol = orderedSymbols[i];
-    const active = i < progress;
-    ctx.strokeStyle = active ? "rgba(116, 242, 163, 0.28)" : "rgba(231, 196, 106, 0.085)";
-    ctx.lineWidth = active ? 3 : 2;
-    ctx.setLineDash(active ? [] : [10, 14]);
-    ctx.beginPath();
-    ctx.moveTo(center.x, center.y);
-    const bendX = (center.x + symbol.x) / 2;
-    const bendY = center.y + (symbol.y < center.y ? -40 : 42);
-    ctx.quadraticCurveTo(bendX, bendY, symbol.x, symbol.y);
-    ctx.stroke();
-
-    const signalGlow = ctx.createRadialGradient(symbol.x, symbol.y, 4, symbol.x, symbol.y, active ? 48 : 34);
-    signalGlow.addColorStop(0, active ? "rgba(116, 242, 163, 0.14)" : "rgba(231, 196, 106, 0.07)");
-    signalGlow.addColorStop(1, "rgba(231, 196, 106, 0)");
-    ctx.fillStyle = signalGlow;
-    ctx.beginPath();
-    ctx.arc(symbol.x, symbol.y, active ? 48 : 34, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  const radioGlow = ctx.createRadialGradient(radioCenter.x, radioCenter.y, 6, radioCenter.x, radioCenter.y, active ? 72 : 44);
+  radioGlow.addColorStop(0, active ? "rgba(116, 242, 163, 0.16)" : "rgba(231, 196, 106, 0.07)");
+  radioGlow.addColorStop(1, "rgba(231, 196, 106, 0)");
+  ctx.fillStyle = radioGlow;
+  ctx.beginPath();
+  ctx.arc(radioCenter.x, radioCenter.y, active ? 72 : 44, 0, Math.PI * 2);
+  ctx.fill();
 
   ctx.setLineDash([]);
   ctx.restore();
@@ -1873,6 +1944,8 @@ function drawProps(room) {
     if (prop.type === "grandfatherClock") drawGrandfatherClock(prop);
     if (prop.type === "shelf") drawShelf(prop);
     if (prop.type === "clue") drawClue(prop);
+    if (prop.type === "christmasLights") drawChristmasLightWall(prop);
+    if (prop.type === "radio") drawRadio(prop);
     if (prop.type === "machine") drawMachine(prop);
     if (prop.type === "chamber") drawChamber(prop);
     if (prop.type === "scientist") drawScientist(prop);
@@ -2650,6 +2723,109 @@ function drawClue(prop) {
   ctx.restore();
 }
 
+function drawChristmasLightWall(prop) {
+  const clueVisible = state.libraryPuzzle.solved || state.libraryPuzzle.clueSeen || (
+    state.flashlight && pointInFlashlight(prop.x + prop.w / 2, prop.y + prop.h / 2)
+  );
+  const pulse = 0.5 + Math.sin(performance.now() / 180) * 0.5;
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  const litLetters = new Set(["F", "O", "U", "R", "N", "E", "I", "V"]);
+
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.34)";
+  ctx.fillRect(prop.x + 8, prop.y + 8, prop.w, prop.h);
+  fillRoundRect(prop.x, prop.y, prop.w, prop.h, 8, "#21151a");
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.42)";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(prop.x + 6, prop.y + 6, prop.w - 12, prop.h - 12);
+
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.18)";
+  ctx.lineWidth = 2;
+  for (let y = prop.y + 28; y <= prop.y + 82; y += 27) {
+    ctx.beginPath();
+    ctx.moveTo(prop.x + 20, y);
+    ctx.bezierCurveTo(prop.x + 86, y - 14, prop.x + 154, y + 14, prop.x + prop.w - 20, y - 2);
+    ctx.stroke();
+  }
+
+  ctx.textAlign = "center";
+  ctx.font = "700 12px Trebuchet MS, Arial";
+  alphabet.forEach((letter, index) => {
+    const col = index % 9;
+    const row = Math.floor(index / 9);
+    const x = prop.x + 25 + col * 24;
+    const y = prop.y + 31 + row * 27;
+    const lit = clueVisible && litLetters.has(letter);
+    ctx.fillStyle = lit ? `rgba(255, 244, 184, ${0.75 + pulse * 0.25})` : "rgba(169, 163, 181, 0.22)";
+    ctx.beginPath();
+    ctx.arc(x, y - 4, lit ? 8 : 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = lit ? "#1b1117" : "rgba(246, 240, 223, 0.34)";
+    ctx.fillText(letter, x, y);
+  });
+
+  if (clueVisible) {
+    const words = ["FOUR", "ONE", "FIVE"];
+    ctx.font = "700 16px Trebuchet MS, Arial";
+    for (let i = 0; i < words.length; i += 1) {
+      const x = prop.x + 58 + i * 62;
+      const y = prop.y + prop.h - 15;
+      ctx.fillStyle = i === Math.floor((performance.now() / 520) % 3) ? "#74f2a3" : "#e7c46a";
+      ctx.fillText(words[i], x, y);
+    }
+  } else {
+    ctx.fillStyle = "rgba(231, 196, 106, 0.74)";
+    ctx.font = "700 11px Trebuchet MS, Arial";
+    ctx.fillText("SHINE LIGHT", prop.x + prop.w / 2, prop.y + prop.h - 15);
+  }
+
+  ctx.restore();
+}
+
+function drawRadio(prop) {
+  const puzzle = state.libraryPuzzle;
+  const solved = puzzle.solved;
+
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.34)";
+  ctx.beginPath();
+  ctx.ellipse(prop.x + prop.w / 2, prop.y + prop.h + 7, prop.w * 0.48, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  fillRoundRect(prop.x, prop.y, prop.w, prop.h, 8, solved ? "#2d3c32" : "#4a3524");
+  ctx.strokeStyle = solved ? "#74f2a3" : "rgba(231, 196, 106, 0.62)";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(prop.x + 5, prop.y + 5, prop.w - 10, prop.h - 10);
+
+  ctx.fillStyle = "#151116";
+  ctx.fillRect(prop.x + 12, prop.y + 15, 34, 22);
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.26)";
+  ctx.lineWidth = 2;
+  for (let x = prop.x + 17; x < prop.x + 43; x += 7) {
+    ctx.beginPath();
+    ctx.moveTo(x, prop.y + 17);
+    ctx.lineTo(x, prop.y + 35);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = solved ? "#74f2a3" : "#e7c46a";
+  ctx.beginPath();
+  ctx.arc(prop.x + 61, prop.y + 26, 12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#151116";
+  ctx.font = "700 10px Trebuchet MS, Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(solved ? "415" : "???", prop.x + prop.w / 2, prop.y + 50);
+
+  if (!solved && circleRectOverlap(state.player.x, state.player.y, PLAYER_RADIUS + 8, prop)) {
+    ctx.fillStyle = "#f6f0df";
+    ctx.font = "700 12px Trebuchet MS, Arial";
+    ctx.fillText("E: TUNE", prop.x + prop.w / 2, prop.y - 10);
+  }
+
+  ctx.restore();
+}
+
 function drawCandle(prop) {
   if (drawAsset("candle", prop.x - 24, prop.y - 46, 48, 64)) return;
 
@@ -3128,86 +3304,6 @@ function drawSignalKeyReveal(item, pulse) {
   ctx.arc(item.x, item.y, 34, Math.PI * 0.08, Math.PI * 1.86);
   ctx.stroke();
   ctx.restore();
-}
-
-function drawSymbols(room) {
-  if (!room.symbols) return;
-
-  for (const symbol of room.symbols) {
-    const visible = symbol.activated || isSymbolVisible(symbol);
-    if (!visible) continue;
-
-    const pulse = symbol.activated ? 1 : 0.72 + Math.sin(performance.now() / 160) * 0.18;
-    ctx.save();
-    ctx.globalAlpha = pulse;
-    drawStudySymbolPlaque(symbol);
-    ctx.strokeStyle = symbol.activated ? "#74f2a3" : "#fff4b8";
-    ctx.fillStyle = symbol.activated ? "rgba(116, 242, 163, 0.22)" : "rgba(231, 196, 106, 0.18)";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(symbol.x, symbol.y, 20, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    if (symbol.id === "moon") drawMoonSymbol(symbol.x, symbol.y);
-    if (symbol.id === "eye") drawEyeSymbol(symbol.x, symbol.y);
-    if (symbol.id === "flame") drawFlameSymbol(symbol.x, symbol.y);
-    if (!symbol.activated && distanceToPlayer(symbol) < 50) {
-      ctx.fillStyle = "#f6f0df";
-      ctx.font = "12px Trebuchet MS, Arial";
-      ctx.textAlign = "center";
-      ctx.fillText("E", symbol.x, symbol.y - 28);
-    }
-    ctx.restore();
-  }
-}
-
-function drawStudySymbolPlaque(symbol) {
-  const active = symbol.activated;
-  ctx.save();
-  ctx.globalAlpha = 1;
-  ctx.fillStyle = active ? "rgba(23, 49, 31, 0.78)" : "rgba(24, 17, 22, 0.76)";
-  ctx.beginPath();
-  ctx.roundRect(symbol.x - 25, symbol.y - 25, 50, 50, 7);
-  ctx.fill();
-  ctx.strokeStyle = active ? "rgba(116, 242, 163, 0.64)" : "rgba(231, 196, 106, 0.42)";
-  ctx.lineWidth = 3;
-  ctx.strokeRect(symbol.x - 20, symbol.y - 20, 40, 40);
-
-  ctx.strokeStyle = active ? "rgba(116, 242, 163, 0.22)" : "rgba(255, 244, 184, 0.16)";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(symbol.x, symbol.y, 29, 0.25, Math.PI * 1.82);
-  ctx.stroke();
-  ctx.restore();
-}
-
-function drawMoonSymbol(x, y) {
-  ctx.fillStyle = "#fff4b8";
-  ctx.beginPath();
-  ctx.arc(x - 3, y, 9, Math.PI * 0.35, Math.PI * 1.65);
-  ctx.arc(x + 5, y, 9, Math.PI * 1.65, Math.PI * 0.35, true);
-  ctx.closePath();
-  ctx.fill();
-}
-
-function drawEyeSymbol(x, y) {
-  ctx.strokeStyle = "#fff4b8";
-  ctx.beginPath();
-  ctx.ellipse(x, y, 13, 7, 0, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.fillStyle = "#fff4b8";
-  ctx.beginPath();
-  ctx.arc(x, y, 4, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-function drawFlameSymbol(x, y) {
-  ctx.fillStyle = "#fff4b8";
-  ctx.beginPath();
-  ctx.moveTo(x, y - 13);
-  ctx.bezierCurveTo(x + 12, y - 2, x + 8, y + 12, x, y + 13);
-  ctx.bezierCurveTo(x - 12, y + 7, x - 7, y - 4, x, y - 13);
-  ctx.fill();
 }
 
 function drawNodes(room) {
@@ -3785,7 +3881,6 @@ function brightenFlashlightBeam(room) {
   drawRoom(room);
   drawExits(room);
   drawItems(room);
-  drawSymbols(room);
   drawNodes(room);
   drawEnemies(room);
   drawPlayer();
@@ -4008,63 +4103,69 @@ function drawWinOverlay() {
   ctx.fillText("Hawkins still has a chance.", W / 2, 326);
 }
 
+function drawRadioTuningOverlay() {
+  if (!state.libraryPuzzle.radioOpen) return;
+
+  const puzzle = state.libraryPuzzle;
+  const panelX = W / 2 - 250;
+  const panelY = H - 180;
+  const panelW = 500;
+  const panelH = 128;
+
+  ctx.save();
+  ctx.fillStyle = "rgba(4, 5, 9, 0.82)";
+  fillRoundRect(panelX, panelY, panelW, panelH, 8, ctx.fillStyle);
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.62)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(panelX + 4, panelY + 4, panelW - 8, panelH - 8);
+
+  ctx.fillStyle = "#e7c46a";
+  ctx.textAlign = "center";
+  ctx.font = "700 18px Trebuchet MS, Arial";
+  ctx.fillText("Tune the Radio Signal", W / 2, panelY + 30);
+
+  ctx.font = "12px Trebuchet MS, Arial";
+  ctx.fillStyle = "rgba(246, 240, 223, 0.72)";
+  ctx.fillText("A/D choose digit  |  W/S change number  |  E submit  |  Esc close", W / 2, panelY + 108);
+
+  for (let i = 0; i < 3; i += 1) {
+    const x = W / 2 - 78 + i * 78;
+    const selected = puzzle.selectedDigit === i;
+    const solvedDigit = puzzle.frequency[i] === puzzle.answer[i];
+    fillRoundRect(x - 25, panelY + 48, 50, 42, 6, selected ? "rgba(231, 196, 106, 0.2)" : "rgba(18, 19, 27, 0.92)");
+    ctx.strokeStyle = selected ? "#e7c46a" : "rgba(255, 255, 255, 0.16)";
+    ctx.lineWidth = selected ? 3 : 2;
+    ctx.strokeRect(x - 25, panelY + 48, 50, 42);
+    ctx.fillStyle = solvedDigit ? "#74f2a3" : "#f6f0df";
+    ctx.font = "700 30px Trebuchet MS, Arial";
+    ctx.fillText(String(puzzle.frequency[i]), x, panelY + 79);
+  }
+
+  ctx.strokeStyle = state.libraryPuzzle.clueSeen ? "rgba(116, 242, 163, 0.52)" : "rgba(232, 77, 91, 0.42)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(W / 2 - 156, panelY + 95);
+  ctx.lineTo(W / 2 + 156, panelY + 95);
+  ctx.stroke();
+
+  ctx.fillStyle = state.libraryPuzzle.clueSeen ? "#74f2a3" : "#e84d5b";
+  ctx.font = "700 11px Trebuchet MS, Arial";
+  ctx.fillText(state.libraryPuzzle.clueSeen ? "LIGHTS SAY: FOUR ONE FIVE" : "THE LIGHT WALL HAS THE CLUE", W / 2, panelY + 49);
+  ctx.restore();
+}
+
 function isItemVisible(item) {
   if (item.requiresPuzzle && !state.libraryPuzzle.solved) return false;
   if (item.requiresPuzzle && state.libraryPuzzle.solved) return true;
   return !item.hidden || (state.flashlight && pointInFlashlight(item.x, item.y));
 }
 
-function isSymbolVisible(symbol) {
-  return state.flashlight && pointInFlashlight(symbol.x, symbol.y);
-}
-
-function activateLibrarySymbol(symbol) {
-  const expected = state.libraryPuzzle.order[state.libraryPuzzle.progress];
-
-  if (symbol.id !== expected) {
-    resetLibraryPuzzle();
-    return;
-  }
-
-  symbol.activated = true;
-  state.libraryPuzzle.progress += 1;
-
-  if (state.libraryPuzzle.progress >= state.libraryPuzzle.order.length) {
-    state.libraryPuzzle.solved = true;
-    showMessage("The lights flicker in sequence. The signal key appears.");
-  } else {
-    const next = state.libraryPuzzle.order[state.libraryPuzzle.progress];
-    showMessage(`${symbolLabel(symbol.id)} answers. Seek ${symbolLabel(next)}.`);
-  }
-}
-
-function resetLibraryPuzzle() {
-  const room = rooms.library;
-  room.symbols.forEach((symbol) => { symbol.activated = false; });
-  state.libraryPuzzle.progress = 0;
-  state.libraryPuzzle.penaltyTimer = 3;
-  state.fear = clamp(state.fear + 14, 0, 100);
-  showMessage("The pattern breaks. A Demogorgon hears you.");
-}
-
 function getLibraryObjective() {
   if (state.libraryPuzzle.solved && !state.inventory.includes("signal key")) return "Take the signal key";
   if (state.libraryPuzzle.solved) return "Return to the Creel House entry";
-  const next = state.libraryPuzzle.order[state.libraryPuzzle.progress];
-  return `Tune to ${symbolLabel(next)}`;
-}
-
-function capitalize(value) {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
-function symbolLabel(id) {
-  const labels = {
-    moon: "Lights",
-    eye: "Clock",
-    flame: "Flame"
-  };
-  return labels[id] || capitalize(id);
+  if (state.libraryPuzzle.radioOpen) return "Tune the radio to 415";
+  if (state.libraryPuzzle.clueSeen) return "Tune the radio frequency";
+  return "Reveal the light-wall message";
 }
 
 function pointInFlashlight(x, y) {
