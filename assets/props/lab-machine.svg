@@ -1,20 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 150" role="img" aria-label="Mad scientist laboratory machine">
-  <ellipse cx="110" cy="134" rx="84" ry="10" fill="#05060a" opacity=".35"/>
-  <rect x="24" y="30" width="172" height="90" rx="10" fill="#21151a"/>
-  <rect x="36" y="42" width="148" height="66" rx="6" fill="#3c2a32"/>
-  <rect x="48" y="54" width="58" height="42" rx="4" fill="#151926" stroke="#e7c46a" stroke-opacity=".35" stroke-width="3"/>
-  <circle cx="77" cy="75" r="18" fill="#263133"/>
-  <path d="M65 76h24M77 64v24" stroke="#74f2a3" stroke-width="4" stroke-linecap="round"/>
-  <rect x="120" y="52" width="48" height="16" rx="3" fill="#4b321f"/>
-  <rect x="120" y="76" width="48" height="16" rx="3" fill="#4b321f"/>
-  <circle cx="130" cy="60" r="4" fill="#74f2a3"/>
-  <circle cx="144" cy="60" r="4" fill="#e7c46a"/>
-  <circle cx="158" cy="60" r="4" fill="#e84d5b"/>
-  <path d="M130 85h28" stroke="#74f2a3" stroke-width="4" stroke-linecap="round"/>
-  <path d="M38 32V18h22v14M160 32V18h22v14" stroke="#8a6338" stroke-width="8" stroke-linecap="round"/>
-  <path d="M60 18c10-12 28-12 38 0s28 12 38 0" fill="none" stroke="#74f2a3" stroke-opacity=".55" stroke-width="5" stroke-linecap="round"/>
-  <path d="M28 112h164" stroke="#8a6338" stroke-width="8" stroke-linecap="round"/>
-  <path d="M42 120v18M178 120v18" stroke="#05060a" stroke-opacity=".65" stroke-width="8" stroke-linecap="round"/>
-  <rect x="24" y="30" width="172" height="90" rx="10" fill="none" stroke="#05060a" stroke-opacity=".72" stroke-width="6"/>
-  <path d="M40 44h140" stroke="#f6f0df" stroke-opacity=".16" stroke-width="3"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 150" role="img" aria-label="Upside Down psychic ritual device with pulsing red core">
+  <defs>
+    <radialGradient id="riftGlow" cx="50%" cy="52%" r="50%">
+      <stop offset="0" stop-color="#ff5a64" stop-opacity=".42"/>
+      <stop offset=".45" stop-color="#48c783" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="machineBody" x1="22" x2="196" y1="30" y2="120">
+      <stop offset="0" stop-color="#281019"/>
+      <stop offset=".55" stop-color="#15131a"/>
+      <stop offset="1" stop-color="#0a080d"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="110" cy="136" rx="86" ry="10" fill="#05060a" opacity=".42"/>
+  <circle cx="110" cy="76" r="62" fill="url(#riftGlow)"/>
+
+  <path d="M30 26c30 13 53 27 68 46M190 25c-29 14-52 29-68 47M20 103c37-13 67-17 92-12M200 102c-37-14-67-17-92-12" fill="none" stroke="#5b1f2a" stroke-width="9" stroke-linecap="round"/>
+  <path d="M38 28c27 11 47 25 60 44M182 28c-26 12-46 26-60 44" fill="none" stroke="#ff5a64" stroke-opacity=".4" stroke-width="4" stroke-linecap="round"/>
+
+  <rect x="22" y="32" width="176" height="88" rx="14" fill="url(#machineBody)" stroke="#05060a" stroke-width="7"/>
+  <rect x="36" y="45" width="148" height="58" rx="8" fill="#21151d" stroke="#3a1620" stroke-width="4"/>
+
+  <circle cx="78" cy="74" r="28" fill="#0b0b10" stroke="#7b2832" stroke-width="5"/>
+  <circle cx="78" cy="74" r="18" fill="#18211d" stroke="#48c783" stroke-opacity=".7" stroke-width="4"/>
+  <path d="M63 74h30M78 59v30" stroke="#8fffc0" stroke-width="5" stroke-linecap="round"/>
+  <path d="M59 55c13-7 25-7 38 0M58 94c13 7 27 7 40 0" fill="none" stroke="#ff5a64" stroke-opacity=".46" stroke-width="3" stroke-linecap="round"/>
+
+  <path d="M126 54h43v40h-43z" fill="#120d13" stroke="#05060a" stroke-width="4"/>
+  <circle cx="139" cy="66" r="5" fill="#48c783"/>
+  <circle cx="153" cy="66" r="5" fill="#e7c46a"/>
+  <circle cx="167" cy="66" r="5" fill="#ff5a64"/>
+  <path d="M136 84h28" stroke="#48c783" stroke-width="4" stroke-linecap="round"/>
+  <path d="M137 92c7-8 15-8 24 0" fill="none" stroke="#ff5a64" stroke-opacity=".58" stroke-width="3" stroke-linecap="round"/>
+
+  <path d="M52 32V18h24v14M144 32V18h24v14" stroke="#3a2118" stroke-width="9" stroke-linecap="round"/>
+  <path d="M75 18c12-14 28-14 40 0s28 14 40 0" fill="none" stroke="#48c783" stroke-opacity=".54" stroke-width="5" stroke-linecap="round"/>
+  <path d="M29 116h164" stroke="#5b3421" stroke-width="8" stroke-linecap="round"/>
+  <path d="M45 119v18M175 119v18" stroke="#05060a" stroke-opacity=".78" stroke-width="8" stroke-linecap="round"/>
+
+  <path d="M45 47h130" stroke="#f6f0df" stroke-opacity=".12" stroke-width="3"/>
+  <path d="M44 107c24-9 46-10 66-3s42 6 66-4" fill="none" stroke="#48c783" stroke-opacity=".24" stroke-width="4" stroke-linecap="round"/>
+  <text x="110" y="129" text-anchor="middle" font-family="Trebuchet MS, Arial" font-size="12" font-weight="700" fill="#ffb5ac" opacity=".72">RIFT</text>
 </svg>

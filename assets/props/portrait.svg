@@ -1,13 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 128" role="img" aria-label="Haunted wall portrait">
-  <path d="M48 8 20 30M48 8l28 22" stroke="#e7c46a" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>
-  <rect x="8" y="22" width="80" height="96" rx="8" fill="#3c2a32"/>
-  <rect x="18" y="32" width="60" height="76" fill="#b58a3d"/>
-  <rect x="25" y="40" width="46" height="54" fill="#21151a"/>
-  <circle cx="48" cy="57" r="14" fill="#15101c"/>
-  <circle cx="42" cy="55" r="3" fill="#74f2a3"/>
-  <circle cx="54" cy="55" r="3" fill="#74f2a3"/>
-  <path d="M48 74 65 94H31z" fill="#5d3f28" stroke="#e7c46a" stroke-opacity=".5" stroke-width="3"/>
-  <rect x="24" y="98" width="48" height="12" fill="#4b321f" stroke="#e7c46a" stroke-opacity=".6" stroke-width="2"/>
-  <text x="48" y="107" text-anchor="middle" font-family="Trebuchet MS, Arial" font-size="8" font-weight="700" fill="#e7c46a">PORTRAIT</text>
-  <rect x="8" y="22" width="80" height="96" rx="8" fill="none" stroke="#05060a" stroke-opacity=".7" stroke-width="5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 128" role="img" aria-label="Creepy Creel House family portrait with watching eyes">
+  <path d="M48 8 18 31M48 8l30 23" stroke="#e7c46a" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>
+  <rect x="7" y="20" width="82" height="100" rx="8" fill="#2a1822" stroke="#05060a" stroke-width="5"/>
+  <rect x="15" y="28" width="66" height="84" fill="#8a6338"/>
+  <rect x="22" y="36" width="52" height="68" fill="#24151b"/>
+  <path d="M24 38h48v14H24z" fill="#3a2430" opacity=".8"/>
+  <path d="M29 94c5-19 12-29 19-29s15 10 20 29z" fill="#5d3f28" stroke="#e7c46a" stroke-opacity=".34" stroke-width="3"/>
+  <path d="M35 88c8 5 18 5 26 0" stroke="#2b1a18" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="48" cy="57" r="16" fill="#1a1218" stroke="#05060a" stroke-width="3"/>
+  <path d="M33 55c3-12 13-18 25-13 7 3 10 8 10 15-12-4-22-5-35-2z" fill="#513722"/>
+  <circle cx="42" cy="57" r="4" fill="#74f2a3"/>
+  <circle cx="55" cy="57" r="4" fill="#74f2a3"/>
+  <circle cx="42" cy="57" r="1.5" fill="#05060a"/>
+  <circle cx="55" cy="57" r="1.5" fill="#05060a"/>
+  <path d="M42 70c4 3 9 3 13 0" stroke="#8a533c" stroke-width="2" stroke-linecap="round"/>
+  <path d="M26 42h44M26 101h44" stroke="#f6f0df" stroke-opacity=".2" stroke-width="2"/>
+  <path d="M17 30h62M17 112h62M15 29v84M81 29v84" stroke="#e7c46a" stroke-opacity=".48" stroke-width="3"/>
+  <rect x="30" y="99" width="36" height="8" fill="#4b321f" stroke="#e7c46a" stroke-opacity=".45" stroke-width="2"/>
 </svg>

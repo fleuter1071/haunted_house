@@ -40,8 +40,8 @@ const assetImages = {};
 
 const rooms = {
   yard: {
-    name: "Front Yard",
-    objective: "Enter the estate",
+    name: "Hawkins Street",
+    objective: "Follow the signal into the Creel House",
     floor: "#18211c",
     wall: "#202326",
     spawn: { x: 132, y: 470 },
@@ -62,19 +62,21 @@ const rooms = {
       { type: "fence", x: 676, y: 92, w: 196, h: 34 },
       { type: "tree", x: 180, y: 128 },
       { type: "tree", x: 754, y: 156 },
-      { type: "grave", x: 168, y: 336 },
-      { type: "grave", x: 762, y: 362 },
+      { type: "streetlamp", x: 112, y: 360 },
+      { type: "bike", x: 214, y: 386 },
+      { type: "mailbox", x: 646, y: 360 },
+      { type: "flyerBoard", x: 778, y: 318 },
       { type: "porch", x: 408, y: 230, w: 144, h: 96 }
     ],
     exits: [
-      { x: 454, y: 278, w: 52, h: 42, to: "foyer", spawn: { x: 480, y: 500 }, label: "Enter estate" }
+      { x: 454, y: 278, w: 52, h: 42, to: "foyer", spawn: { x: 480, y: 500 }, label: "Enter the Creel House" }
     ],
     items: [],
     enemies: []
   },
   foyer: {
-    name: "Grand Foyer",
-    objective: "Find the library key",
+    name: "Creel House Entry",
+    objective: "Find the signal key",
     floor: "#211b24",
     wall: "#2a2630",
     spawn: { x: 480, y: 512 },
@@ -94,22 +96,24 @@ const rooms = {
       { type: "stairs", x: 436, y: 42, w: 88, h: 112 },
       { type: "portrait", x: 88, y: 108, w: 58, h: 84 },
       { type: "portrait", x: 814, y: 108, w: 58, h: 84 },
+      { type: "familyPortraitWall", x: 480, y: 210 },
+      { type: "grandfatherClock", x: 840, y: 350 },
       { type: "candle", x: 250, y: 214 },
       { type: "candle", x: 710, y: 214 },
       { type: "candle", x: 320, y: 492 },
       { type: "candle", x: 640, y: 492 }
     ],
     exits: [
-      { x: 438, y: 70, w: 84, h: 48, to: "lab", spawn: { x: 480, y: 500 }, item: "stair key", label: "Unlock staircase" },
-      { x: 36, y: 246, w: 42, h: 80, to: "library", spawn: { x: 854, y: 300 }, label: "Enter library" },
-      { x: 452, y: H - 38, w: 56, h: 36, to: "yard", spawn: { x: 480, y: 340 }, label: "Back outside" }
+      { x: 438, y: 70, w: 84, h: 48, to: "lab", spawn: { x: 480, y: 500 }, item: "signal key", label: "Open the gate to Vecna's lair" },
+      { x: 36, y: 246, w: 42, h: 80, to: "library", spawn: { x: 854, y: 300 }, label: "Enter the study" },
+      { x: 452, y: H - 38, w: 56, h: 36, to: "yard", spawn: { x: 480, y: 340 }, label: "Back to Hawkins Street" }
     ],
     items: [],
     enemies: []
   },
   library: {
-    name: "Moonlit Library",
-    objective: "Use the flashlight to reveal the key",
+    name: "Creel House Study",
+    objective: "Decode the hidden pattern",
     floor: "#151926",
     wall: "#252838",
     spawn: { x: 854, y: 300 },
@@ -143,15 +147,15 @@ const rooms = {
       { id: "flame", x: 288, y: 274, activated: false }
     ],
     items: [
-      { id: "stair-key", name: "stair key", x: 480, y: 230, hidden: true, requiresPuzzle: true, collected: false }
+      { id: "signal-key", name: "signal key", x: 480, y: 230, hidden: true, requiresPuzzle: true, collected: false }
     ],
     enemies: [
       { id: "library-ghost", x: 482, y: 330, startX: 482, startY: 330, radius: 18, speed: 78, color: "#b7fff0", path: [{ x: 482, y: 174 }, { x: 482, y: 500 }], target: 0, startTarget: 0 }
     ]
   },
   lab: {
-    name: "Attic Laboratory",
-    objective: "Disable three power nodes",
+    name: "Vecna's Mind Lair",
+    objective: "Break three psychic anchors",
     floor: "#171e20",
     wall: "#263133",
     spawn: { x: 480, y: 500 },
@@ -170,7 +174,7 @@ const rooms = {
       { type: "scientist", x: 694, y: 266 }
     ],
     exits: [
-      { x: 452, y: H - 38, w: 56, h: 36, to: "foyer", spawn: { x: 480, y: 144 }, label: "Back downstairs" }
+      { x: 452, y: H - 38, w: 56, h: 36, to: "foyer", spawn: { x: 480, y: 144 }, label: "Back to the Creel House" }
     ],
     items: [],
     nodes: [
@@ -243,7 +247,7 @@ function resetGame() {
     pulse: 0
   };
 
-  showMessage("Find your friend before the experiment begins.");
+  showMessage("Find Eleven before Vecna pulls her under.");
   updateHud();
 }
 
@@ -262,18 +266,18 @@ function updateHud() {
   roomNameEl.textContent = room.name;
 
   if (state.won || state.endingPhase === "complete") {
-    objectiveEl.textContent = "Escaped together";
+    objectiveEl.textContent = "Eleven is safe";
   } else if (state.endingPhase === "chamberOpening") {
-    objectiveEl.textContent = "The chamber is breaking open";
+    objectiveEl.textContent = "Vecna's hold is breaking";
   } else if (state.endingPhase === "reunited") {
-    objectiveEl.textContent = "Get your friend out";
-  } else if (state.roomId === "foyer" && state.inventory.includes("stair key")) {
-    objectiveEl.textContent = "Unlock the staircase";
+    objectiveEl.textContent = "Get Eleven out";
+  } else if (state.roomId === "foyer" && state.inventory.includes("signal key")) {
+    objectiveEl.textContent = "Open the gate to Vecna's lair";
   } else if (state.roomId === "library") {
     objectiveEl.textContent = getLibraryObjective();
   } else if (state.roomId === "lab") {
     const active = room.nodes.filter((node) => node.active).length;
-    objectiveEl.textContent = active > 0 ? `Disable ${active} power node${active === 1 ? "" : "s"}` : "Open the containment chamber";
+    objectiveEl.textContent = active > 0 ? `Break ${active} psychic anchor${active === 1 ? "" : "s"}` : "Break Vecna's hold on Eleven";
   } else {
     objectiveEl.textContent = room.objective;
   }
@@ -395,7 +399,7 @@ function updateFear(dt) {
     state.player.x = spawn.x;
     state.player.y = spawn.y;
     state.fear = 30;
-    showMessage("Panic takes over. You stumble back to the room entrance.");
+    showMessage("Mind pressure spikes. You stumble back to the room entrance.");
   }
 }
 
@@ -407,7 +411,7 @@ function handleInteract() {
   for (const exit of room.exits) {
     if (circleRectOverlap(state.player.x, state.player.y, PLAYER_RADIUS + 7, exit)) {
       if (exit.item && !state.inventory.includes(exit.item)) {
-        showMessage(`The ${exit.label.toLowerCase()} needs the ${exit.item}.`);
+        showMessage(`Vecna's gate needs the ${exit.item}.`);
         return;
       }
 
@@ -434,7 +438,7 @@ function handleInteract() {
       if (!item.collected && isItemVisible(item) && distanceToPlayer(item) < 44) {
         item.collected = true;
         state.inventory.push(item.name);
-        showMessage("You found the stair key.");
+        showMessage("You found the signal key.");
         return;
       }
     }
@@ -446,7 +450,7 @@ function handleInteract() {
         node.active = false;
         state.fear = Math.max(0, state.fear - 10);
         const remaining = room.nodes.filter((powerNode) => powerNode.active).length;
-        showMessage(remaining ? "Power node disabled." : "The containment field is failing. Get to your friend!");
+        showMessage(remaining ? "Psychic anchor broken." : "Vecna's hold is breaking. Get to Eleven!");
         return;
       }
     }
@@ -456,7 +460,7 @@ function handleInteract() {
     if (allDisabled && circleRectOverlap(state.player.x, state.player.y, PLAYER_RADIUS + 9, chamber)) {
       startRescueSequence();
     } else if (!allDisabled && circleRectOverlap(state.player.x, state.player.y, PLAYER_RADIUS + 9, chamber)) {
-      showMessage("The containment field is still powered.");
+      showMessage("Vecna's psychic hold is still too strong.");
     }
   }
 }
@@ -467,7 +471,7 @@ function startRescueSequence() {
   state.endingTimer = 0;
   state.flashlight = true;
   state.fear = 0;
-  showMessage("The glass splits. Your friend reaches for you.");
+  showMessage("The red fog splits. Eleven reaches for you.");
   updateHud();
 }
 
@@ -478,7 +482,7 @@ function updateEnding(dt) {
   if (state.endingPhase === "chamberOpening" && state.endingTimer >= 1.25) {
     state.endingPhase = "reunited";
     state.endingTimer = 0;
-    showMessage("You pull them free. The scientist stumbles back.");
+    showMessage("You pull Eleven back. Vecna recoils.");
     return;
   }
 
@@ -486,7 +490,7 @@ function updateEnding(dt) {
     state.endingPhase = "complete";
     state.won = true;
     state.endingTimer = 0;
-    showMessage("You escape Blackwood Estate together.");
+    showMessage("You escape the Upside Down together.");
   }
 }
 
@@ -509,6 +513,7 @@ function drawRoom(room) {
   ctx.fillRect(0, 0, W, H);
 
   drawFloorPattern(room);
+  drawRoomAtmosphere(room);
   drawProps(room);
   drawRoomPropConnections(room);
 
@@ -553,7 +558,7 @@ function drawStyledWall(wall, room) {
 }
 
 function getWallStyle(room) {
-  if (room.name === "Front Yard") {
+  if (room.name === "Hawkins Street") {
     return {
       material: "stone",
       base: "#20272a",
@@ -564,25 +569,36 @@ function getWallStyle(room) {
     };
   }
 
-  if (room.name === "Grand Foyer") {
+  if (room.name === "Creel House Entry") {
     return {
-      material: "wood",
-      base: "#2a2230",
-      top: "#3b2a35",
+      material: "creelHouse",
+      base: "#2b2430",
+      top: "#3d3038",
       shadow: "rgba(5, 6, 10, 0.32)",
       edge: "rgba(231, 196, 106, 0.2)",
       detail: "rgba(231, 196, 106, 0.16)"
     };
   }
 
-  if (room.name === "Moonlit Library") {
+  if (room.name === "Creel House Study") {
     return {
-      material: "library",
-      base: "#222536",
-      top: "#30334a",
+      material: "creelStudy",
+      base: "#202234",
+      top: "#303149",
       shadow: "rgba(5, 6, 10, 0.36)",
-      edge: "rgba(246, 240, 223, 0.14)",
-      detail: "rgba(79, 135, 168, 0.2)"
+      edge: "rgba(231, 196, 106, 0.16)",
+      detail: "rgba(79, 135, 168, 0.18)"
+    };
+  }
+
+  if (room.name === "Vecna's Mind Lair") {
+    return {
+      material: "upsideDown",
+      base: "#1b2424",
+      top: "#2b3334",
+      shadow: "rgba(5, 6, 10, 0.42)",
+      edge: "rgba(255, 82, 92, 0.18)",
+      detail: "rgba(255, 82, 92, 0.18)"
     };
   }
 
@@ -599,10 +615,16 @@ function getWallStyle(room) {
 function drawWallMaterial(wall, style, horizontal) {
   if (style.material === "stone") {
     drawStoneWallDetail(wall, style, horizontal);
+  } else if (style.material === "creelHouse") {
+    drawCreelHouseWallDetail(wall, style, horizontal);
   } else if (style.material === "wood") {
     drawWoodWallDetail(wall, style, horizontal);
   } else if (style.material === "library") {
     drawLibraryWallDetail(wall, style, horizontal);
+  } else if (style.material === "creelStudy") {
+    drawCreelStudyWallDetail(wall, style, horizontal);
+  } else if (style.material === "upsideDown") {
+    drawUpsideDownWallDetail(wall, style, horizontal);
   } else {
     drawLabWallDetail(wall, style, horizontal);
   }
@@ -671,6 +693,66 @@ function drawWoodWallDetail(wall, style, horizontal) {
   }
 }
 
+function drawCreelHouseWallDetail(wall, style, horizontal) {
+  ctx.save();
+  ctx.lineCap = "round";
+
+  ctx.fillStyle = "rgba(58, 42, 47, 0.38)";
+  if (horizontal) {
+    for (let x = wall.x + 14; x < wall.x + wall.w - 12; x += 52) {
+      ctx.fillRect(x, wall.y + 8, 34, Math.max(8, wall.h - 18));
+    }
+  } else {
+    for (let y = wall.y + 14; y < wall.y + wall.h - 12; y += 52) {
+      ctx.fillRect(wall.x + 8, y, Math.max(8, wall.w - 18), 34);
+    }
+  }
+
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.22)";
+  ctx.lineWidth = 3;
+  if (horizontal) {
+    ctx.beginPath();
+    ctx.moveTo(wall.x + 8, wall.y + wall.h - 9);
+    ctx.lineTo(wall.x + wall.w - 8, wall.y + wall.h - 9);
+    ctx.moveTo(wall.x + 8, wall.y + 9);
+    ctx.lineTo(wall.x + wall.w - 8, wall.y + 9);
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(wall.x + 9, wall.y + 8);
+    ctx.lineTo(wall.x + 9, wall.y + wall.h - 8);
+    ctx.moveTo(wall.x + wall.w - 9, wall.y + 8);
+    ctx.lineTo(wall.x + wall.w - 9, wall.y + wall.h - 8);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = "rgba(12, 10, 14, 0.38)";
+  ctx.lineWidth = 2;
+  const cracks = horizontal
+    ? [[wall.x + wall.w * 0.28, wall.y + 12], [wall.x + wall.w * 0.63, wall.y + wall.h - 12]]
+    : [[wall.x + 12, wall.y + wall.h * 0.32], [wall.x + wall.w - 12, wall.y + wall.h * 0.68]];
+  for (const [x, y] of cracks) {
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + (horizontal ? 16 : -8), y + 10);
+    ctx.lineTo(x + (horizontal ? 7 : 7), y + 24);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = "rgba(246, 240, 223, 0.08)";
+  if (horizontal) {
+    for (let x = wall.x + 28; x < wall.x + wall.w - 8; x += 84) {
+      ctx.fillRect(x, wall.y + 13, 8, Math.max(6, wall.h - 26));
+    }
+  } else {
+    for (let y = wall.y + 28; y < wall.y + wall.h - 8; y += 84) {
+      ctx.fillRect(wall.x + 13, y, Math.max(6, wall.w - 26), 8);
+    }
+  }
+
+  ctx.restore();
+}
+
 function drawLibraryWallDetail(wall, style, horizontal) {
   ctx.strokeStyle = style.detail;
   ctx.lineWidth = 2;
@@ -696,6 +778,73 @@ function drawLibraryWallDetail(wall, style, horizontal) {
     ctx.lineTo(wall.x + wall.w - 8, wall.y + wall.h - 8);
     ctx.stroke();
   }
+}
+
+function drawCreelStudyWallDetail(wall, style, horizontal) {
+  ctx.save();
+  ctx.lineCap = "round";
+
+  ctx.fillStyle = "rgba(18, 17, 28, 0.36)";
+  if (horizontal) {
+    for (let x = wall.x + 12; x < wall.x + wall.w - 10; x += 64) {
+      ctx.fillRect(x, wall.y + 8, 44, Math.max(8, wall.h - 18));
+    }
+  } else {
+    for (let y = wall.y + 12; y < wall.y + wall.h - 10; y += 64) {
+      ctx.fillRect(wall.x + 8, y, Math.max(8, wall.w - 18), 44);
+    }
+  }
+
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.2)";
+  ctx.lineWidth = 3;
+  if (horizontal) {
+    ctx.beginPath();
+    ctx.moveTo(wall.x + 8, wall.y + 9);
+    ctx.lineTo(wall.x + wall.w - 8, wall.y + 9);
+    ctx.moveTo(wall.x + 8, wall.y + wall.h - 9);
+    ctx.lineTo(wall.x + wall.w - 8, wall.y + wall.h - 9);
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(wall.x + 9, wall.y + 8);
+    ctx.lineTo(wall.x + 9, wall.y + wall.h - 8);
+    ctx.moveTo(wall.x + wall.w - 9, wall.y + 8);
+    ctx.lineTo(wall.x + wall.w - 9, wall.y + wall.h - 8);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = "rgba(79, 135, 168, 0.18)";
+  if (horizontal) {
+    for (let x = wall.x + 18; x < wall.x + wall.w - 10; x += 24) {
+      const bookH = 7 + ((x / 24) % 3) * 3;
+      ctx.fillRect(x, wall.y + wall.h - bookH - 10, 8, bookH);
+    }
+  } else {
+    for (let y = wall.y + 18; y < wall.y + wall.h - 10; y += 24) {
+      const bookW = 7 + ((y / 24) % 3) * 3;
+      ctx.fillRect(wall.x + wall.w - bookW - 10, y, bookW, 8);
+    }
+  }
+
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.1)";
+  ctx.lineWidth = 2;
+  if (horizontal) {
+    for (let x = wall.x + 44; x < wall.x + wall.w - 18; x += 96) {
+      ctx.beginPath();
+      ctx.moveTo(x, wall.y + 12);
+      ctx.lineTo(x + 14, wall.y + wall.h - 12);
+      ctx.stroke();
+    }
+  } else {
+    for (let y = wall.y + 44; y < wall.y + wall.h - 18; y += 96) {
+      ctx.beginPath();
+      ctx.moveTo(wall.x + 12, y);
+      ctx.lineTo(wall.x + wall.w - 12, y + 14);
+      ctx.stroke();
+    }
+  }
+
+  ctx.restore();
 }
 
 function drawLabWallDetail(wall, style, horizontal) {
@@ -729,6 +878,97 @@ function drawLabWallDetail(wall, style, horizontal) {
   }
 }
 
+function drawUpsideDownWallDetail(wall, style, horizontal) {
+  ctx.lineCap = "round";
+  ctx.fillStyle = "rgba(6, 7, 9, 0.26)";
+  if (horizontal) {
+    for (let x = wall.x + 18; x < wall.x + wall.w - 20; x += 72) {
+      ctx.beginPath();
+      ctx.ellipse(x + 16, wall.y + wall.h / 2, 24, Math.max(5, wall.h * 0.22), 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else {
+    for (let y = wall.y + 18; y < wall.y + wall.h - 20; y += 72) {
+      ctx.beginPath();
+      ctx.ellipse(wall.x + wall.w / 2, y + 16, Math.max(5, wall.w * 0.22), 24, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.strokeStyle = "rgba(82, 38, 31, 0.6)";
+  ctx.lineWidth = 7;
+  if (horizontal) {
+    for (let x = wall.x + 24; x < wall.x + wall.w - 12; x += 56) {
+      ctx.beginPath();
+      ctx.moveTo(x, wall.y + wall.h - 6);
+      ctx.quadraticCurveTo(x + 18, wall.y + 5, x + 40, wall.y + wall.h - 12);
+      ctx.stroke();
+    }
+  } else {
+    for (let y = wall.y + 24; y < wall.y + wall.h - 12; y += 56) {
+      ctx.beginPath();
+      ctx.moveTo(wall.x + wall.w - 6, y);
+      ctx.quadraticCurveTo(wall.x + 5, y + 18, wall.x + wall.w - 12, y + 40);
+      ctx.stroke();
+    }
+  }
+
+  ctx.strokeStyle = "rgba(255, 82, 92, 0.32)";
+  ctx.lineWidth = 3;
+  if (horizontal) {
+    ctx.beginPath();
+    ctx.moveTo(wall.x + 10, wall.y + wall.h / 2);
+    for (let x = wall.x + 44; x < wall.x + wall.w - 10; x += 48) {
+      ctx.lineTo(x, wall.y + wall.h / 2 + (x % 96 === 0 ? -7 : 6));
+    }
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(wall.x + wall.w / 2, wall.y + 10);
+    for (let y = wall.y + 44; y < wall.y + wall.h - 10; y += 48) {
+      ctx.lineTo(wall.x + wall.w / 2 + (y % 96 === 0 ? -7 : 6), y);
+    }
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = "rgba(72, 199, 131, 0.18)";
+  ctx.lineWidth = 2;
+  if (horizontal) {
+    for (let x = wall.x + 30; x < wall.x + wall.w - 20; x += 84) {
+      ctx.beginPath();
+      ctx.moveTo(x, wall.y + wall.h - 9);
+      ctx.lineTo(x + 12, wall.y + wall.h - 18);
+      ctx.moveTo(x + 12, wall.y + wall.h - 18);
+      ctx.lineTo(x + 23, wall.y + wall.h - 11);
+      ctx.stroke();
+    }
+  } else {
+    for (let y = wall.y + 30; y < wall.y + wall.h - 20; y += 84) {
+      ctx.beginPath();
+      ctx.moveTo(wall.x + wall.w - 9, y);
+      ctx.lineTo(wall.x + wall.w - 18, y + 12);
+      ctx.moveTo(wall.x + wall.w - 18, y + 12);
+      ctx.lineTo(wall.x + wall.w - 11, y + 23);
+      ctx.stroke();
+    }
+  }
+
+  ctx.fillStyle = "rgba(255, 82, 92, 0.34)";
+  const count = horizontal ? Math.max(2, Math.floor(wall.w / 92)) : Math.max(2, Math.floor(wall.h / 92));
+  for (let i = 0; i < count; i += 1) {
+    const x = horizontal ? wall.x + 28 + i * 92 : wall.x + wall.w / 2 + ((i % 2) * 8 - 4);
+    const y = horizontal ? wall.y + wall.h / 2 + ((i % 2) * 6 - 3) : wall.y + 28 + i * 92;
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255, 82, 92, 0.18)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+}
+
 function drawFloorPattern(room) {
   ctx.save();
   ctx.globalAlpha = 0.12;
@@ -749,20 +989,818 @@ function drawFloorPattern(room) {
   ctx.restore();
 }
 
+function drawRoomAtmosphere(room) {
+  if (room.name === "Hawkins Street") {
+    ctx.save();
+    drawHawkinsStreetGround();
+    drawHawkinsHouseApproach();
+    drawHawkinsStreetSurfaceWear();
+    drawHawkinsStreetMoodCues();
+    ctx.restore();
+    return;
+  }
+
+  if (room.name === "Creel House Entry") {
+    ctx.save();
+    drawCreelHouseFloorboards();
+    drawCreelHouseFloorWear();
+    drawCreelHouseFocalPath();
+    drawCreelHouseMoodCues();
+    ctx.restore();
+    return;
+  }
+
+  if (room.name === "Creel House Study") {
+    ctx.save();
+    drawCreelStudyFloor();
+    drawCreelStudySurfaceWear();
+    drawCreelStudySignalPath();
+    drawCreelStudyMoodCues();
+    ctx.restore();
+    return;
+  }
+
+  if (room.name !== "Vecna's Mind Lair") return;
+
+  ctx.save();
+  drawUpsideDownFloorCracks();
+  drawUpsideDownFloorVeins();
+  drawUpsideDownSpores();
+  drawPsychicRoomHaze();
+  ctx.restore();
+}
+
+function drawHawkinsStreetGround() {
+  ctx.save();
+
+  const roadY = H - 138;
+  const roadH = 102;
+  ctx.fillStyle = "#15191c";
+  ctx.fillRect(36, roadY, W - 72, roadH);
+
+  ctx.fillStyle = "#232a2c";
+  ctx.fillRect(36, roadY, W - 72, 10);
+  ctx.fillStyle = "#2b312f";
+  ctx.fillRect(36, roadY - 16, W - 72, 16);
+
+  ctx.strokeStyle = "rgba(216, 196, 156, 0.14)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(54, roadY + 47);
+  ctx.lineTo(W - 54, roadY + 47);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.08)";
+  ctx.lineWidth = 1;
+  for (let x = 72; x < W - 60; x += 92) {
+    ctx.beginPath();
+    ctx.moveTo(x, roadY + 18);
+    ctx.lineTo(x + 42, roadY + 12);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = "rgba(7, 12, 9, 0.18)";
+  const grassPatches = [
+    [86, 186, 130, 42], [732, 214, 142, 44], [110, 354, 180, 36],
+    [678, 344, 188, 38], [378, 372, 204, 30]
+  ];
+  for (const [x, y, w, h] of grassPatches) {
+    ctx.beginPath();
+    ctx.ellipse(x, y, w / 2, h / 2, -0.08, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawHawkinsHouseApproach() {
+  ctx.save();
+
+  ctx.fillStyle = "rgba(5, 6, 10, 0.28)";
+  ctx.beginPath();
+  ctx.moveTo(310, 112);
+  ctx.lineTo(650, 112);
+  ctx.lineTo(690, 338);
+  ctx.lineTo(270, 338);
+  ctx.closePath();
+  ctx.fill();
+
+  const walk = ctx.createLinearGradient(480, 318, 480, H - 142);
+  walk.addColorStop(0, "#3d3b34");
+  walk.addColorStop(1, "#2e312e");
+  ctx.fillStyle = walk;
+  ctx.beginPath();
+  ctx.moveTo(438, 318);
+  ctx.lineTo(522, 318);
+  ctx.lineTo(584, H - 142);
+  ctx.lineTo(376, H - 142);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.16)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(438, 318);
+  ctx.lineTo(376, H - 142);
+  ctx.moveTo(522, 318);
+  ctx.lineTo(584, H - 142);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.09)";
+  ctx.lineWidth = 2;
+  for (let y = 344; y < H - 154; y += 42) {
+    const inset = (y - 344) * 0.22;
+    ctx.beginPath();
+    ctx.moveTo(428 - inset, y);
+    ctx.lineTo(532 + inset, y + 2);
+    ctx.stroke();
+  }
+
+  const porchGlow = ctx.createRadialGradient(480, 286, 10, 480, 286, 106);
+  porchGlow.addColorStop(0, "rgba(231, 196, 106, 0.11)");
+  porchGlow.addColorStop(0.52, "rgba(120, 158, 176, 0.045)");
+  porchGlow.addColorStop(1, "rgba(231, 196, 106, 0)");
+  ctx.fillStyle = porchGlow;
+  ctx.beginPath();
+  ctx.arc(480, 286, 106, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawHawkinsStreetSurfaceWear() {
+  ctx.save();
+  ctx.lineCap = "round";
+
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.07)";
+  ctx.lineWidth = 2;
+  const cracks = [
+    [106, 496, 54, -8], [240, 520, 42, 10], [610, 492, 60, -12],
+    [764, 532, 48, 8], [410, 382, 46, -6], [530, 394, 42, 8]
+  ];
+  for (const [x, y, w, dy] of cracks) {
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + w, y + dy);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = "rgba(74, 93, 65, 0.18)";
+  ctx.lineWidth = 2;
+  for (const [x, y, h] of [[72, 246, 34], [236, 352, 28], [724, 314, 32], [840, 220, 26], [592, 370, 24]]) {
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.quadraticCurveTo(x + 8, y - 12, x + 2, y - h);
+    ctx.moveTo(x + 9, y + 4);
+    ctx.quadraticCurveTo(x + 18, y - 8, x + 12, y - h + 4);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawHawkinsStreetMoodCues() {
+  ctx.save();
+
+  const doorPull = ctx.createLinearGradient(480, H - 134, 480, 276);
+  doorPull.addColorStop(0, "rgba(120, 158, 176, 0.025)");
+  doorPull.addColorStop(0.45, "rgba(231, 196, 106, 0.045)");
+  doorPull.addColorStop(1, "rgba(255, 82, 92, 0.065)");
+  ctx.fillStyle = doorPull;
+  ctx.beginPath();
+  ctx.moveTo(370, H - 142);
+  ctx.quadraticCurveTo(430, 368, 454, 300);
+  ctx.lineTo(506, 300);
+  ctx.quadraticCurveTo(530, 368, 590, H - 142);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(169, 194, 190, 0.045)";
+  const fogBands = [
+    [84, 402, 210, 20, -0.04],
+    [304, 434, 280, 24, 0.03],
+    [618, 396, 250, 22, -0.02],
+    [164, 500, 330, 18, 0.01],
+    [558, 514, 300, 18, -0.03]
+  ];
+  for (const [x, y, w, h, tilt] of fogBands) {
+    ctx.beginPath();
+    ctx.ellipse(x, y, w / 2, h / 2, tilt, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.strokeStyle = "rgba(255, 82, 92, 0.16)";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  const porchVines = [
+    [[410, 286], [382, 304], [366, 338], [336, 360]],
+    [[550, 286], [584, 306], [604, 336], [634, 356]],
+    [[468, 322], [456, 350], [438, 380], [420, 402]]
+  ];
+  for (const vine of porchVines) {
+    ctx.beginPath();
+    ctx.moveTo(vine[0][0], vine[0][1]);
+    for (let i = 1; i < vine.length - 1; i += 1) {
+      const current = vine[i];
+      const next = vine[i + 1];
+      ctx.quadraticCurveTo(current[0], current[1], next[0], next[1]);
+    }
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = "rgba(116, 242, 163, 0.075)";
+  for (const [x, y, r] of [[326, 370, 2], [388, 338, 1.4], [572, 340, 1.8], [648, 374, 1.5], [456, 414, 1.4], [512, 412, 1.5]]) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawCreelHouseFloorboards() {
+  ctx.save();
+  ctx.strokeStyle = "rgba(10, 8, 11, 0.34)";
+  ctx.lineWidth = 3;
+
+  const rows = [46, 92, 139, 187, 236, 286, 337, 389, 442, 496, 552];
+  for (const y of rows) {
+    ctx.beginPath();
+    ctx.moveTo(36, y);
+    ctx.lineTo(W - 36, y + ((y / 46) % 2 ? 3 : -2));
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.08)";
+  ctx.lineWidth = 2;
+  for (let i = 0; i < rows.length - 1; i += 1) {
+    const y = rows[i] + 8;
+    const offset = i % 2 ? 92 : 44;
+    for (let x = 72 + offset; x < W - 70; x += 164) {
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, rows[i + 1] - 8);
+      ctx.stroke();
+    }
+  }
+
+  ctx.restore();
+}
+
+function drawCreelStudyFloor() {
+  ctx.save();
+  ctx.strokeStyle = "rgba(7, 6, 12, 0.36)";
+  ctx.lineWidth = 3;
+
+  for (let y = 52; y < H - 46; y += 58) {
+    ctx.beginPath();
+    ctx.moveTo(44, y);
+    ctx.lineTo(W - 44, y + ((y / 58) % 2 ? 2 : -2));
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.08)";
+  ctx.lineWidth = 2;
+  for (let x = 72; x < W - 58; x += 92) {
+    ctx.beginPath();
+    ctx.moveTo(x, 44);
+    ctx.lineTo(x + 18, H - 46);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = "rgba(79, 135, 168, 0.08)";
+  for (let x = 118; x < W - 70; x += 184) {
+    ctx.beginPath();
+    ctx.moveTo(x, 52);
+    ctx.lineTo(x - 22, H - 60);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawCreelStudySurfaceWear() {
+  ctx.save();
+  ctx.lineCap = "round";
+
+  ctx.fillStyle = "rgba(7, 6, 12, 0.18)";
+  for (const [x, y, w, h] of [[220, 168, 180, 24], [650, 170, 180, 24], [246, 456, 190, 28], [674, 454, 190, 28]]) {
+    ctx.beginPath();
+    ctx.ellipse(x, y, w / 2, h / 2, 0.05, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.075)";
+  ctx.lineWidth = 2;
+  const scratches = [
+    [222, 220, 42, -8], [330, 334, 60, 10], [552, 222, 46, -12],
+    [724, 334, 54, 8], [426, 478, 50, -10], [590, 112, 44, 8]
+  ];
+  for (const [x, y, w, dy] of scratches) {
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + w, y + dy);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = "rgba(231, 196, 106, 0.055)";
+  for (const [x, y, r] of [[170, 88, 1.5], [286, 520, 1.4], [406, 198, 1.3], [560, 440, 1.5], [762, 94, 1.5], [836, 500, 1.4]]) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawCreelStudySignalPath() {
+  const room = rooms.library;
+  const clue = room.props.find((prop) => prop.type === "clue");
+  if (!clue) return;
+
+  const center = { x: clue.x + clue.w / 2, y: clue.y + clue.h / 2 };
+  const progress = state.libraryPuzzle.solved ? room.symbols.length : state.libraryPuzzle.progress;
+
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  const clueGlow = ctx.createRadialGradient(center.x, center.y, 8, center.x, center.y, 92);
+  clueGlow.addColorStop(0, "rgba(231, 196, 106, 0.14)");
+  clueGlow.addColorStop(0.55, "rgba(116, 242, 163, 0.045)");
+  clueGlow.addColorStop(1, "rgba(231, 196, 106, 0)");
+  ctx.fillStyle = clueGlow;
+  ctx.beginPath();
+  ctx.arc(center.x, center.y, 92, 0, Math.PI * 2);
+  ctx.fill();
+
+  const orderedSymbols = state.libraryPuzzle.order
+    .map((id) => room.symbols.find((symbol) => symbol.id === id))
+    .filter(Boolean);
+
+  for (let i = 0; i < orderedSymbols.length; i += 1) {
+    const symbol = orderedSymbols[i];
+    const active = i < progress;
+    ctx.strokeStyle = active ? "rgba(116, 242, 163, 0.28)" : "rgba(231, 196, 106, 0.085)";
+    ctx.lineWidth = active ? 3 : 2;
+    ctx.setLineDash(active ? [] : [10, 14]);
+    ctx.beginPath();
+    ctx.moveTo(center.x, center.y);
+    const bendX = (center.x + symbol.x) / 2;
+    const bendY = center.y + (symbol.y < center.y ? -40 : 42);
+    ctx.quadraticCurveTo(bendX, bendY, symbol.x, symbol.y);
+    ctx.stroke();
+
+    const signalGlow = ctx.createRadialGradient(symbol.x, symbol.y, 4, symbol.x, symbol.y, active ? 48 : 34);
+    signalGlow.addColorStop(0, active ? "rgba(116, 242, 163, 0.14)" : "rgba(231, 196, 106, 0.07)");
+    signalGlow.addColorStop(1, "rgba(231, 196, 106, 0)");
+    ctx.fillStyle = signalGlow;
+    ctx.beginPath();
+    ctx.arc(symbol.x, symbol.y, active ? 48 : 34, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+function drawCreelStudyMoodCues() {
+  ctx.save();
+
+  const shelfShadows = [
+    [134, 92, 276, 78], [554, 92, 276, 78],
+    [134, 236, 276, 78], [554, 236, 276, 78],
+    [134, 380, 276, 78], [554, 380, 276, 78]
+  ];
+  for (const [x, y, w, h] of shelfShadows) {
+    const shade = ctx.createLinearGradient(x, y, x, y + h);
+    shade.addColorStop(0, "rgba(5, 6, 12, 0.2)");
+    shade.addColorStop(0.55, "rgba(5, 6, 12, 0.05)");
+    shade.addColorStop(1, "rgba(5, 6, 12, 0.18)");
+    ctx.fillStyle = shade;
+    ctx.fillRect(x, y, w, h);
+  }
+
+  const exitHaze = ctx.createRadialGradient(W - 58, 296, 12, W - 58, 296, 82);
+  exitHaze.addColorStop(0, "rgba(79, 135, 168, 0.16)");
+  exitHaze.addColorStop(0.6, "rgba(79, 135, 168, 0.045)");
+  exitHaze.addColorStop(1, "rgba(79, 135, 168, 0)");
+  ctx.fillStyle = exitHaze;
+  ctx.beginPath();
+  ctx.arc(W - 58, 296, 82, 0, Math.PI * 2);
+  ctx.fill();
+
+  const vignette = ctx.createRadialGradient(W / 2, H / 2, 160, W / 2, H / 2, 560);
+  vignette.addColorStop(0, "rgba(5, 6, 12, 0)");
+  vignette.addColorStop(0.62, "rgba(5, 6, 12, 0.08)");
+  vignette.addColorStop(1, "rgba(5, 6, 12, 0.22)");
+  ctx.fillStyle = vignette;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = "rgba(116, 242, 163, 0.06)";
+  const motes = [[156, 190, 1.4], [338, 214, 1.1], [504, 152, 1.3], [612, 492, 1.1], [776, 224, 1.4], [846, 420, 1.2]];
+  for (const [x, y, r] of motes) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawCreelHouseFloorWear() {
+  ctx.save();
+  ctx.lineCap = "round";
+
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.07)";
+  ctx.lineWidth = 2;
+  const scratches = [
+    [292, 212, 40, -10], [330, 392, 54, 8], [604, 250, 42, -14],
+    [690, 418, 58, 6], [196, 318, 36, 12], [480, 170, 46, -8],
+    [448, 494, 64, 10], [788, 332, 38, -12]
+  ];
+  for (const [x, y, w, dy] of scratches) {
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + w, y + dy);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = "rgba(7, 6, 9, 0.12)";
+  for (const [x, y, w, h] of [[246, 504, 170, 28], [556, 346, 190, 24], [410, 214, 126, 20]]) {
+    ctx.beginPath();
+    ctx.ellipse(x, y, w / 2, h / 2, 0.08, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = "rgba(231, 196, 106, 0.045)";
+  for (const [x, y, r] of [[150, 154, 2], [210, 456, 1.5], [374, 112, 1.5], [740, 178, 2], [812, 484, 1.5], [534, 528, 1.5]]) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawCreelHouseFocalPath() {
+  ctx.save();
+  ctx.lineCap = "round";
+
+  const centerPath = ctx.createLinearGradient(480, 520, 480, 118);
+  centerPath.addColorStop(0, "rgba(7, 6, 9, 0.16)");
+  centerPath.addColorStop(0.5, "rgba(7, 6, 9, 0.08)");
+  centerPath.addColorStop(1, "rgba(232, 77, 91, 0.1)");
+  ctx.fillStyle = centerPath;
+  ctx.beginPath();
+  ctx.moveTo(398, 548);
+  ctx.quadraticCurveTo(426, 388, 430, 296);
+  ctx.quadraticCurveTo(438, 188, 456, 134);
+  ctx.lineTo(504, 134);
+  ctx.quadraticCurveTo(522, 188, 530, 296);
+  ctx.quadraticCurveTo(534, 388, 562, 548);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.085)";
+  ctx.lineWidth = 2;
+  const scuffs = [
+    [420, 510, 28, -12], [528, 496, -30, -10],
+    [440, 438, 36, -14], [522, 418, -34, -13],
+    [452, 358, 32, -15], [512, 338, -28, -15],
+    [462, 272, 26, -17], [500, 248, -22, -17],
+    [470, 188, 18, -18], [492, 176, -18, -18]
+  ];
+  for (const [x, y, dx, dy] of scuffs) {
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + dx, y + dy);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.08)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(430, 520);
+  ctx.quadraticCurveTo(452, 392, 456, 270);
+  ctx.quadraticCurveTo(460, 190, 468, 140);
+  ctx.moveTo(530, 520);
+  ctx.quadraticCurveTo(508, 392, 504, 270);
+  ctx.quadraticCurveTo(500, 190, 492, 140);
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(231, 196, 106, 0.05)";
+  for (const [x, y, r] of [[410, 500, 2], [548, 470, 1.8], [426, 394, 1.8], [530, 344, 2], [452, 244, 1.5], [506, 206, 1.5]]) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawCreelHouseMoodCues() {
+  drawCreelHouseColdHallShadows();
+  drawCreelHouseCandlePools();
+  drawCreelHouseStairDread();
+  drawCreelHouseDustMotes();
+}
+
+function drawCreelHouseCandlePools() {
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  const candles = [
+    [250, 214, 82], [710, 214, 82],
+    [320, 492, 72], [640, 492, 72]
+  ];
+
+  for (const [x, y, radius] of candles) {
+    const glow = ctx.createRadialGradient(x, y - 18, 8, x, y - 18, radius);
+    glow.addColorStop(0, "rgba(255, 220, 128, 0.22)");
+    glow.addColorStop(0.48, "rgba(231, 196, 106, 0.1)");
+    glow.addColorStop(1, "rgba(231, 196, 106, 0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y - 18, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawCreelHouseColdHallShadows() {
+  ctx.save();
+  const shadows = [
+    [88, 280, 118, 220],
+    [872, 280, 118, 220],
+    [480, 120, 260, 86]
+  ];
+
+  for (const [x, y, w, h] of shadows) {
+    const shadow = ctx.createRadialGradient(x, y, 10, x, y, Math.max(w, h));
+    shadow.addColorStop(0, "rgba(5, 8, 18, 0.24)");
+    shadow.addColorStop(1, "rgba(5, 8, 18, 0)");
+    ctx.fillStyle = shadow;
+    ctx.beginPath();
+    ctx.ellipse(x, y, w, h, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawCreelHouseStairDread() {
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  const cx = 480;
+  const cy = 92;
+  const dread = ctx.createRadialGradient(cx, cy, 10, cx, cy, 128);
+  dread.addColorStop(0, "rgba(232, 77, 91, 0.2)");
+  dread.addColorStop(0.46, "rgba(232, 77, 91, 0.1)");
+  dread.addColorStop(1, "rgba(232, 77, 91, 0)");
+  ctx.fillStyle = dread;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 128, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(232, 77, 91, 0.2)";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(390, 142);
+  ctx.quadraticCurveTo(438, 116, 480, 92);
+  ctx.quadraticCurveTo(522, 116, 570, 142);
+  ctx.stroke();
+
+  ctx.globalCompositeOperation = "source-over";
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  const infection = [
+    [[480, 118], [458, 152], [432, 176], [406, 204]],
+    [[480, 118], [502, 154], [534, 180], [566, 206]],
+    [[456, 104], [424, 94], [398, 84], [370, 92]],
+    [[504, 104], [536, 94], [562, 84], [590, 92]],
+    [[480, 132], [474, 170], [480, 204], [470, 238]],
+    [[480, 132], [492, 170], [496, 208], [512, 240]]
+  ];
+
+  for (const path of infection) {
+    ctx.strokeStyle = "rgba(28, 8, 12, 0.68)";
+    ctx.lineWidth = 7;
+    ctx.beginPath();
+    ctx.moveTo(path[0][0], path[0][1]);
+    for (let i = 1; i < path.length - 1; i += 1) {
+      const current = path[i];
+      const next = path[i + 1];
+      ctx.quadraticCurveTo(current[0], current[1], next[0], next[1]);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(255, 82, 92, 0.34)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(path[0][0], path[0][1]);
+    for (let i = 1; i < path.length - 1; i += 1) {
+      const current = path[i];
+      const next = path[i + 1];
+      ctx.quadraticCurveTo(current[0], current[1], next[0], next[1]);
+    }
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = "rgba(116, 242, 163, 0.12)";
+  ctx.lineWidth = 2;
+  const thornMarks = [
+    [430, 176, -18, 10], [538, 178, 18, 10],
+    [468, 194, -14, 14], [500, 202, 16, 12],
+    [410, 108, -14, -10], [550, 108, 14, -10]
+  ];
+  for (const [x, y, dx, dy] of thornMarks) {
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + dx, y + dy);
+    ctx.stroke();
+  }
+
+  ctx.globalCompositeOperation = "screen";
+  const core = ctx.createRadialGradient(cx, 128, 8, cx, 128, 88);
+  core.addColorStop(0, "rgba(255, 82, 92, 0.18)");
+  core.addColorStop(0.52, "rgba(116, 242, 163, 0.05)");
+  core.addColorStop(1, "rgba(255, 82, 92, 0)");
+  ctx.fillStyle = core;
+  ctx.beginPath();
+  ctx.arc(cx, 128, 88, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawCreelHouseDustMotes() {
+  ctx.save();
+  ctx.fillStyle = "rgba(246, 240, 223, 0.1)";
+  const motes = [
+    [128, 126, 1.4], [178, 354, 1.2], [268, 164, 1.1],
+    [430, 220, 1.3], [548, 186, 1.2], [690, 140, 1.4],
+    [782, 368, 1.1], [836, 210, 1.2], [530, 468, 1.2]
+  ];
+  for (const [x, y, r] of motes) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawUpsideDownFloorCracks() {
+  ctx.strokeStyle = "rgba(3, 4, 7, 0.42)";
+  ctx.lineWidth = 4;
+  ctx.lineCap = "round";
+
+  const cracks = [
+    [[78, 398], [144, 362], [206, 380], [270, 340]],
+    [[680, 116], [632, 150], [648, 196], [590, 230]],
+    [[300, 132], [358, 170], [332, 218], [382, 254]],
+    [[820, 410], [754, 384], [706, 420], [642, 398]],
+    [[410, 518], [456, 464], [520, 486], [568, 438]]
+  ];
+
+  for (const crack of cracks) {
+    ctx.beginPath();
+    ctx.moveTo(crack[0][0], crack[0][1]);
+    for (let i = 1; i < crack.length; i += 1) {
+      ctx.lineTo(crack[i][0], crack[i][1]);
+    }
+    ctx.stroke();
+
+    for (let i = 1; i < crack.length - 1; i += 1) {
+      const [x, y] = crack[i];
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + (i % 2 ? 24 : -22), y + 18);
+      ctx.stroke();
+    }
+  }
+}
+
+function drawUpsideDownFloorVeins() {
+  ctx.lineCap = "round";
+
+  const veins = [
+    [[86, 512], [210, 462], [328, 486], [480, 390]],
+    [[118, 94], [250, 158], [348, 132], [480, 190]],
+    [[852, 94], [720, 158], [614, 136], [480, 190]],
+    [[886, 510], [748, 464], [634, 486], [480, 390]],
+    [[480, 190], [452, 244], [480, 304], [506, 356]]
+  ];
+
+  for (const vein of veins) {
+    ctx.strokeStyle = "rgba(55, 27, 22, 0.62)";
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.moveTo(vein[0][0], vein[0][1]);
+    for (let i = 1; i < vein.length - 1; i += 1) {
+      const current = vein[i];
+      const next = vein[i + 1];
+      ctx.quadraticCurveTo(current[0], current[1], next[0], next[1]);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(255, 82, 92, 0.24)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(vein[0][0], vein[0][1]);
+    for (let i = 1; i < vein.length - 1; i += 1) {
+      const current = vein[i];
+      const next = vein[i + 1];
+      ctx.quadraticCurveTo(current[0], current[1], next[0], next[1]);
+    }
+    ctx.stroke();
+
+    for (let i = 1; i < vein.length - 1; i += 1) {
+      const [x, y] = vein[i];
+      ctx.strokeStyle = "rgba(72, 199, 131, 0.18)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x - 16, y + 12);
+      ctx.quadraticCurveTo(x, y - 8, x + 18, y + 10);
+      ctx.stroke();
+    }
+  }
+
+  ctx.strokeStyle = "rgba(72, 199, 131, 0.1)";
+  ctx.lineWidth = 2;
+  for (const [x, y] of [[330, 448], [622, 444], [360, 150], [598, 152]]) {
+    ctx.beginPath();
+    ctx.moveTo(x - 28, y + 14);
+    ctx.quadraticCurveTo(x, y - 10, x + 34, y + 12);
+    ctx.stroke();
+  }
+}
+
+function drawUpsideDownSpores() {
+  const clusters = [
+    [112, 110], [168, 484], [292, 386], [392, 130],
+    [620, 414], [782, 298], [846, 498], [878, 132], [712, 218]
+  ];
+
+  for (const [x, y] of clusters) {
+    ctx.fillStyle = "rgba(255, 82, 92, 0.08)";
+    ctx.beginPath();
+    ctx.ellipse(x, y, 18, 10, 0.3, 0, Math.PI * 2);
+    ctx.fill();
+
+    for (let i = 0; i < 5; i += 1) {
+      const dotX = x + Math.cos(i * 1.4) * (5 + (i % 2) * 6);
+      const dotY = y + Math.sin(i * 1.4) * (3 + (i % 2) * 5);
+      ctx.fillStyle = i % 2 ? "rgba(246, 240, 223, 0.22)" : "rgba(255, 124, 118, 0.2)";
+      ctx.beginPath();
+      ctx.arc(dotX, dotY, i === 0 ? 2.4 : 1.7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+function drawPsychicRoomHaze() {
+  ctx.globalCompositeOperation = "screen";
+  const chamberGlow = ctx.createRadialGradient(480, 304, 20, 480, 304, 190);
+  chamberGlow.addColorStop(0, "rgba(255, 82, 92, 0.12)");
+  chamberGlow.addColorStop(0.48, "rgba(72, 199, 131, 0.06)");
+  chamberGlow.addColorStop(1, "rgba(255, 82, 92, 0)");
+  ctx.fillStyle = chamberGlow;
+  ctx.beginPath();
+  ctx.arc(480, 304, 190, 0, Math.PI * 2);
+  ctx.fill();
+
+  const vecnaGlow = ctx.createRadialGradient(694, 266, 10, 694, 266, 110);
+  vecnaGlow.addColorStop(0, "rgba(255, 82, 92, 0.12)");
+  vecnaGlow.addColorStop(1, "rgba(255, 82, 92, 0)");
+  ctx.fillStyle = vecnaGlow;
+  ctx.beginPath();
+  ctx.arc(694, 266, 110, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalCompositeOperation = "source-over";
+}
+
 function drawProps(room) {
   for (const prop of room.props) {
-    if (room.name === "Attic Laboratory" && (prop.type === "chamber" || prop.type === "scientist")) continue;
+    if (room.name === "Vecna's Mind Lair" && (prop.type === "chamber" || prop.type === "scientist")) continue;
     if (prop.type === "path") {
       drawPath(prop);
     }
     if (prop.type === "tree") drawTree(prop);
     if (prop.type === "fence") drawFence(prop);
     if (prop.type === "grave") drawGrave(prop);
+    if (prop.type === "streetlamp") drawStreetlamp(prop);
+    if (prop.type === "bike") drawBike(prop);
+    if (prop.type === "mailbox") drawMailbox(prop);
+    if (prop.type === "flyerBoard") drawFlyerBoard(prop);
     if (prop.type === "porch") drawPorch(prop);
     if (prop.type === "rug") drawRug(prop);
     if (prop.type === "candle") drawCandle(prop);
     if (prop.type === "stairs") drawStairs(prop);
     if (prop.type === "portrait") drawPortrait(prop);
+    if (prop.type === "familyPortraitWall") drawFamilyPortraitWall(prop);
+    if (prop.type === "grandfatherClock") drawGrandfatherClock(prop);
     if (prop.type === "shelf") drawShelf(prop);
     if (prop.type === "clue") drawClue(prop);
     if (prop.type === "machine") drawMachine(prop);
@@ -772,7 +1810,7 @@ function drawProps(room) {
 }
 
 function drawForegroundProps(room) {
-  if (room.name !== "Attic Laboratory") return;
+  if (room.name !== "Vecna's Mind Lair") return;
 
   for (const prop of room.props) {
     if (prop.type === "chamber") drawChamber(prop);
@@ -781,25 +1819,37 @@ function drawForegroundProps(room) {
 }
 
 function drawRoomPropConnections(room) {
-  if (room.name !== "Attic Laboratory" || !room.nodes) return;
+  if (room.name !== "Vecna's Mind Lair" || !room.nodes) return;
 
   ctx.save();
-  ctx.strokeStyle = "rgba(116, 242, 163, 0.32)";
-  ctx.lineWidth = 5;
-  ctx.setLineDash([12, 8]);
+  const machineCore = { x: 480, y: 190 };
+  const chamberCore = { x: 480, y: 304 };
+
+  ctx.strokeStyle = room.nodes.some((node) => node.active) ? "rgba(255, 82, 92, 0.34)" : "rgba(143, 239, 255, 0.24)";
+  ctx.lineWidth = 7;
+  ctx.setLineDash([14, 10]);
+  ctx.beginPath();
+  ctx.moveTo(machineCore.x, machineCore.y);
+  ctx.bezierCurveTo(444, 226, 516, 258, chamberCore.x, chamberCore.y);
+  ctx.stroke();
+
   for (const node of room.nodes) {
+    ctx.strokeStyle = node.active ? "rgba(255, 82, 92, 0.36)" : "rgba(72, 80, 78, 0.22)";
+    ctx.lineWidth = node.active ? 6 : 3;
+    ctx.setLineDash(node.active ? [12, 8] : [5, 14]);
     ctx.beginPath();
     ctx.moveTo(node.x, node.y);
-    ctx.bezierCurveTo(node.x, 300, 480, 310, 480, 304);
+    ctx.bezierCurveTo(node.x, 300, chamberCore.x, 310, chamberCore.x, chamberCore.y);
     ctx.stroke();
   }
   ctx.setLineDash([]);
   ctx.strokeStyle = "rgba(20, 7, 12, 0.62)";
   ctx.lineWidth = 2;
   for (const node of room.nodes) {
+    if (!node.active) continue;
     ctx.beginPath();
     ctx.moveTo(node.x, node.y);
-    ctx.bezierCurveTo(node.x, 300, 480, 310, 480, 304);
+    ctx.bezierCurveTo(node.x, 300, chamberCore.x, 310, chamberCore.x, chamberCore.y);
     ctx.stroke();
   }
   ctx.restore();
@@ -821,52 +1871,72 @@ function drawPath(prop) {
 
 function drawTree(prop) {
   ctx.save();
-  ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
+  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
   ctx.beginPath();
-  ctx.ellipse(prop.x, prop.y + 44, 42, 16, 0, 0, Math.PI * 2);
+  ctx.ellipse(prop.x, prop.y + 48, 52, 18, 0, 0, Math.PI * 2);
   ctx.fill();
+
   ctx.fillStyle = "#382819";
   ctx.beginPath();
-  ctx.moveTo(prop.x - 14, prop.y + 28);
-  ctx.lineTo(prop.x + 14, prop.y + 28);
-  ctx.lineTo(prop.x + 20, prop.y + 88);
-  ctx.lineTo(prop.x - 18, prop.y + 88);
+  ctx.moveTo(prop.x - 17, prop.y + 30);
+  ctx.lineTo(prop.x + 15, prop.y + 30);
+  ctx.lineTo(prop.x + 22, prop.y + 90);
+  ctx.lineTo(prop.x - 22, prop.y + 90);
   ctx.closePath();
   ctx.fill();
-  ctx.strokeStyle = "#6a4728";
-  ctx.lineWidth = 5;
+
+  ctx.strokeStyle = "#6f4a2a";
+  ctx.lineWidth = 6;
   ctx.beginPath();
   ctx.moveTo(prop.x - 4, prop.y + 40);
   ctx.lineTo(prop.x - 28, prop.y + 4);
   ctx.moveTo(prop.x + 5, prop.y + 42);
   ctx.lineTo(prop.x + 32, prop.y + 4);
+  ctx.moveTo(prop.x + 1, prop.y + 44);
+  ctx.lineTo(prop.x + 2, prop.y - 16);
   ctx.stroke();
+
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.16)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(prop.x - 9, prop.y + 44);
+  ctx.lineTo(prop.x - 14, prop.y + 82);
+  ctx.moveTo(prop.x + 8, prop.y + 42);
+  ctx.lineTo(prop.x + 13, prop.y + 80);
+  ctx.stroke();
+
   ctx.fillStyle = "#0b1710";
   ctx.beginPath();
-  ctx.arc(prop.x - 32, prop.y - 8, 26, 0, Math.PI * 2);
-  ctx.arc(prop.x - 4, prop.y - 30, 34, 0, Math.PI * 2);
-  ctx.arc(prop.x + 31, prop.y - 8, 28, 0, Math.PI * 2);
-  ctx.arc(prop.x, prop.y + 12, 34, 0, Math.PI * 2);
+  ctx.arc(prop.x - 38, prop.y - 8, 27, 0, Math.PI * 2);
+  ctx.arc(prop.x - 8, prop.y - 34, 36, 0, Math.PI * 2);
+  ctx.arc(prop.x + 34, prop.y - 8, 30, 0, Math.PI * 2);
+  ctx.arc(prop.x, prop.y + 16, 38, 0, Math.PI * 2);
   ctx.fill();
+
   ctx.fillStyle = "#17311f";
   ctx.beginPath();
-  ctx.arc(prop.x - 24, prop.y - 12, 14, 0, Math.PI * 2);
-  ctx.arc(prop.x + 20, prop.y - 16, 15, 0, Math.PI * 2);
-  ctx.arc(prop.x + 3, prop.y + 8, 18, 0, Math.PI * 2);
+  ctx.arc(prop.x - 28, prop.y - 14, 15, 0, Math.PI * 2);
+  ctx.arc(prop.x + 22, prop.y - 18, 16, 0, Math.PI * 2);
+  ctx.arc(prop.x + 4, prop.y + 10, 20, 0, Math.PI * 2);
+  ctx.arc(prop.x - 4, prop.y - 30, 10, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 }
 
 function drawFence(prop) {
   ctx.save();
-  ctx.strokeStyle = "#6b5233";
-  ctx.lineWidth = 6;
+  ctx.fillStyle = "rgba(0, 0, 0, 0.24)";
+  ctx.fillRect(prop.x - 6, prop.y + 36, prop.w + 12, 8);
+
+  ctx.strokeStyle = "#6d5130";
+  ctx.lineWidth = 7;
   ctx.beginPath();
   ctx.moveTo(prop.x, prop.y + 15);
   ctx.lineTo(prop.x + prop.w, prop.y + 15);
   ctx.moveTo(prop.x + 4, prop.y + 30);
   ctx.lineTo(prop.x + prop.w - 4, prop.y + 30);
   ctx.stroke();
+
   for (let x = prop.x + 12; x < prop.x + prop.w; x += 34) {
     ctx.fillStyle = "#4a351f";
     ctx.beginPath();
@@ -880,6 +1950,169 @@ function drawFence(prop) {
     ctx.fillStyle = "rgba(231, 196, 106, 0.16)";
     ctx.fillRect(x - 7, prop.y + 9, 4, 27);
   }
+
+  ctx.strokeStyle = "rgba(20, 14, 10, 0.36)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(prop.x + prop.w * 0.42, prop.y + 18);
+  ctx.lineTo(prop.x + prop.w * 0.52, prop.y + 33);
+  ctx.moveTo(prop.x + prop.w * 0.48, prop.y + 16);
+  ctx.lineTo(prop.x + prop.w * 0.58, prop.y + 30);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawStreetlamp(prop) {
+  ctx.save();
+  const glow = ctx.createRadialGradient(prop.x, prop.y - 76, 8, prop.x, prop.y - 76, 78);
+  glow.addColorStop(0, "rgba(231, 196, 106, 0.18)");
+  glow.addColorStop(0.58, "rgba(231, 196, 106, 0.045)");
+  glow.addColorStop(1, "rgba(231, 196, 106, 0)");
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(prop.x, prop.y - 76, 78, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
+  ctx.beginPath();
+  ctx.ellipse(prop.x, prop.y + 4, 30, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#242b2d";
+  ctx.fillRect(prop.x - 5, prop.y - 72, 10, 78);
+  ctx.fillStyle = "#11181a";
+  ctx.fillRect(prop.x - 13, prop.y + 2, 26, 8);
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.22)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(prop.x - 4, prop.y - 70, 8, 70);
+
+  ctx.fillStyle = "#2e3637";
+  ctx.beginPath();
+  ctx.roundRect(prop.x - 17, prop.y - 92, 34, 22, 5);
+  ctx.fill();
+  ctx.fillStyle = "#e7c46a";
+  ctx.beginPath();
+  ctx.arc(prop.x, prop.y - 80, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.4)";
+  ctx.strokeRect(prop.x - 12, prop.y - 88, 24, 14);
+  ctx.restore();
+}
+
+function drawBike(prop) {
+  ctx.save();
+  ctx.translate(prop.x, prop.y);
+  ctx.rotate(-0.16);
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.24)";
+  ctx.beginPath();
+  ctx.ellipse(0, 16, 62, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "#94b9c6";
+  ctx.lineWidth = 4;
+  for (const wheelX of [-34, 34]) {
+    ctx.beginPath();
+    ctx.arc(wheelX, 8, 18, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(wheelX - 13, 8);
+    ctx.lineTo(wheelX + 13, 8);
+    ctx.moveTo(wheelX, -5);
+    ctx.lineTo(wheelX, 21);
+    ctx.stroke();
+    ctx.lineWidth = 4;
+  }
+
+  ctx.strokeStyle = "#d9a64f";
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(-34, 8);
+  ctx.lineTo(-6, -18);
+  ctx.lineTo(18, 8);
+  ctx.lineTo(-34, 8);
+  ctx.moveTo(-6, -18);
+  ctx.lineTo(34, 8);
+  ctx.moveTo(18, 8);
+  ctx.lineTo(34, -16);
+  ctx.stroke();
+
+  ctx.strokeStyle = "#f6f0df";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(34, -16);
+  ctx.lineTo(48, -20);
+  ctx.moveTo(-6, -19);
+  ctx.lineTo(-18, -24);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawMailbox(prop) {
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.24)";
+  ctx.beginPath();
+  ctx.ellipse(prop.x, prop.y + 34, 38, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#4b3321";
+  ctx.fillRect(prop.x - 4, prop.y + 2, 8, 34);
+  ctx.fillStyle = "#24282b";
+  ctx.beginPath();
+  ctx.moveTo(prop.x - 30, prop.y - 10);
+  ctx.lineTo(prop.x + 30, prop.y - 10);
+  ctx.quadraticCurveTo(prop.x + 28, prop.y - 34, prop.x, prop.y - 34);
+  ctx.quadraticCurveTo(prop.x - 28, prop.y - 34, prop.x - 30, prop.y - 10);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#30383b";
+  ctx.fillRect(prop.x - 30, prop.y - 10, 60, 24);
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.24)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(prop.x - 24, prop.y - 5, 28, 13);
+  ctx.fillStyle = "#c4443f";
+  ctx.fillRect(prop.x + 26, prop.y - 26, 5, 28);
+  ctx.fillRect(prop.x + 26, prop.y - 26, 18, 8);
+  ctx.fillStyle = "rgba(231, 196, 106, 0.48)";
+  ctx.font = "700 8px Trebuchet MS, Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("CREEL", prop.x - 10, prop.y + 5);
+  ctx.restore();
+}
+
+function drawFlyerBoard(prop) {
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.26)";
+  ctx.beginPath();
+  ctx.ellipse(prop.x, prop.y + 46, 48, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#4a351f";
+  ctx.fillRect(prop.x - 36, prop.y + 24, 8, 28);
+  ctx.fillRect(prop.x + 28, prop.y + 24, 8, 28);
+  fillRoundRect(prop.x - 48, prop.y - 28, 96, 58, 5, "#3a2b22");
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.28)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(prop.x - 40, prop.y - 20, 80, 42);
+
+  const papers = [
+    [-32, -14, 24, 30, "MISSING"],
+    [-2, -18, 24, 34, "HAVE YOU"],
+    [26, -12, 18, 26, "?"]
+  ];
+  for (const [dx, dy, w, h, label] of papers) {
+    ctx.fillStyle = "#d9d0b6";
+    ctx.fillRect(prop.x + dx, prop.y + dy, w, h);
+    ctx.fillStyle = "#2b2421";
+    ctx.font = "700 6px Trebuchet MS, Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(label, prop.x + dx + w / 2, prop.y + dy + 8);
+    ctx.strokeStyle = "rgba(31, 24, 22, 0.45)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(prop.x + dx + 2, prop.y + dy + 12, w - 4, h - 16);
+  }
+
   ctx.restore();
 }
 
@@ -916,7 +2149,17 @@ function drawGrave(prop) {
 
 function drawPorch(prop) {
   ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.34)";
+  ctx.beginPath();
+  ctx.ellipse(prop.x + prop.w / 2, prop.y + prop.h + 8, prop.w / 2 + 22, 18, 0, 0, Math.PI * 2);
+  ctx.fill();
+
   fillRoundRect(prop.x, prop.y, prop.w, prop.h, 8, "#3a3131");
+  ctx.fillStyle = "rgba(246, 240, 223, 0.08)";
+  for (let x = prop.x + 14; x < prop.x + prop.w - 10; x += 24) {
+    ctx.fillRect(x, prop.y + 8, 3, prop.h - 18);
+  }
+
   ctx.fillStyle = "#271f20";
   ctx.beginPath();
   ctx.moveTo(prop.x + prop.w / 2, prop.y - 26);
@@ -924,6 +2167,15 @@ function drawPorch(prop) {
   ctx.lineTo(prop.x + 8, prop.y + 18);
   ctx.closePath();
   ctx.fill();
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.2)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(prop.x + prop.w / 2, prop.y - 21);
+  ctx.lineTo(prop.x + prop.w - 18, prop.y + 15);
+  ctx.moveTo(prop.x + prop.w / 2, prop.y - 21);
+  ctx.lineTo(prop.x + 18, prop.y + 15);
+  ctx.stroke();
+
   ctx.fillStyle = "#20191d";
   ctx.fillRect(prop.x + prop.w / 2 - 38, prop.y + 20, 76, 74);
   ctx.fillStyle = "#513722";
@@ -941,6 +2193,15 @@ function drawPorch(prop) {
   ctx.beginPath();
   ctx.arc(prop.x + prop.w / 2 + 17, prop.y + 64, 3, 0, Math.PI * 2);
   ctx.fill();
+
+  ctx.fillStyle = "#2c2522";
+  for (let y = prop.y + prop.h + 4; y < prop.y + prop.h + 34; y += 10) {
+    ctx.fillRect(prop.x + 24, y, prop.w - 48, 7);
+    ctx.fillStyle = "rgba(231, 196, 106, 0.16)";
+    ctx.fillRect(prop.x + 28, y, prop.w - 56, 2);
+    ctx.fillStyle = "#2c2522";
+  }
+
   ctx.strokeStyle = "rgba(246, 240, 223, 0.16)";
   ctx.lineWidth = 2;
   for (let y = prop.y + 16; y < prop.y + prop.h; y += 18) {
@@ -1064,6 +2325,189 @@ function drawPortrait(prop) {
   ctx.restore();
 }
 
+function drawFamilyPortraitWall(prop) {
+  ctx.save();
+  const x = prop.x;
+  const y = prop.y;
+
+  const wallGlow = ctx.createRadialGradient(x, y, 12, x, y, 120);
+  wallGlow.addColorStop(0, "rgba(255, 82, 92, 0.08)");
+  wallGlow.addColorStop(0.52, "rgba(231, 196, 106, 0.035)");
+  wallGlow.addColorStop(1, "rgba(255, 82, 92, 0)");
+  ctx.fillStyle = wallGlow;
+  ctx.beginPath();
+  ctx.arc(x, y, 120, 0, Math.PI * 2);
+  ctx.fill();
+
+  drawCreelFamilyFrame(x, y, 122, 72, true);
+  drawCreelFamilyFrame(x - 92, y + 6, 48, 58, false);
+  drawCreelFamilyFrame(x + 92, y + 6, 48, 58, false);
+
+  ctx.strokeStyle = "rgba(255, 82, 92, 0.24)";
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  const cracks = [
+    [[x - 22, y - 30], [x - 6, y - 12], [x - 18, y + 10]],
+    [[x + 28, y - 26], [x + 12, y - 4], [x + 26, y + 20]],
+    [[x - 92, y - 14], [x - 82, y + 2], [x - 98, y + 20]],
+    [[x + 94, y - 12], [x + 84, y + 6], [x + 104, y + 22]]
+  ];
+  for (const crack of cracks) {
+    ctx.beginPath();
+    ctx.moveTo(crack[0][0], crack[0][1]);
+    for (let i = 1; i < crack.length; i += 1) {
+      ctx.lineTo(crack[i][0], crack[i][1]);
+    }
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = "rgba(231, 196, 106, 0.5)";
+  ctx.font = "700 8px Trebuchet MS, Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("CREEL FAMILY", x, y + 52);
+  ctx.restore();
+}
+
+function drawCreelFamilyFrame(x, y, w, h, main) {
+  ctx.save();
+  const radius = main ? 7 : 5;
+  fillRoundRect(x - w / 2 - 6, y - h / 2 - 6, w + 12, h + 12, radius, "#21151a");
+  fillRoundRect(x - w / 2, y - h / 2, w, h, radius - 1, "#6a4a2f");
+  ctx.fillStyle = "#151014";
+  ctx.fillRect(x - w / 2 + 8, y - h / 2 + 8, w - 16, h - 16);
+
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.5)";
+  ctx.lineWidth = main ? 3 : 2;
+  ctx.strokeRect(x - w / 2 + 5, y - h / 2 + 5, w - 10, h - 10);
+
+  const figureCount = main ? 4 : 1;
+  const spacing = main ? 24 : 0;
+  for (let i = 0; i < figureCount; i += 1) {
+    const figureX = x + (i - (figureCount - 1) / 2) * spacing;
+    const headY = y - (main ? 8 : 4);
+    ctx.fillStyle = "#221820";
+    ctx.beginPath();
+    ctx.arc(figureX, headY, main ? 8 : 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#5b3a2b";
+    ctx.beginPath();
+    ctx.moveTo(figureX, headY + 10);
+    ctx.lineTo(figureX + (main ? 12 : 13), y + h / 2 - 10);
+    ctx.lineTo(figureX - (main ? 12 : 13), y + h / 2 - 10);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "#74f2a3";
+    ctx.beginPath();
+    ctx.arc(figureX - 3, headY - 1, main ? 1.8 : 2.3, 0, Math.PI * 2);
+    ctx.arc(figureX + 3, headY - 1, main ? 1.8 : 2.3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = "rgba(246, 240, 223, 0.12)";
+  ctx.fillRect(x - w / 2 + 12, y - h / 2 + 10, main ? 5 : 3, h - 22);
+  ctx.restore();
+}
+
+function drawGrandfatherClock(prop) {
+  ctx.save();
+
+  const x = prop.x;
+  const y = prop.y;
+  const clockGlow = ctx.createRadialGradient(x, y - 58, 8, x, y - 58, 82);
+  clockGlow.addColorStop(0, "rgba(255, 82, 92, 0.14)");
+  clockGlow.addColorStop(0.42, "rgba(231, 196, 106, 0.055)");
+  clockGlow.addColorStop(1, "rgba(255, 82, 92, 0)");
+  ctx.fillStyle = clockGlow;
+  ctx.beginPath();
+  ctx.arc(x, y - 58, 82, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.32)";
+  ctx.beginPath();
+  ctx.ellipse(x, y + 42, 38, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  fillRoundRect(x - 30, y - 92, 60, 132, 7, "#2a1d18");
+  ctx.fillStyle = "#4b3021";
+  ctx.beginPath();
+  ctx.moveTo(x - 34, y - 86);
+  ctx.lineTo(x, y - 112);
+  ctx.lineTo(x + 34, y - 86);
+  ctx.lineTo(x + 28, y - 76);
+  ctx.lineTo(x - 28, y - 76);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.34)";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(x - 24, y - 84, 48, 116);
+  ctx.strokeStyle = "rgba(20, 8, 10, 0.62)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x - 17, y - 24, 34, 52);
+
+  ctx.fillStyle = "#151014";
+  ctx.beginPath();
+  ctx.arc(x, y - 57, 20, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#e7c46a";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(x, y - 57, 17, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.78)";
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 12; i += 1) {
+    const angle = -Math.PI / 2 + i * (Math.PI * 2 / 12);
+    const inner = i % 3 === 0 ? 10 : 13;
+    ctx.beginPath();
+    ctx.moveTo(x + Math.cos(angle) * inner, y - 57 + Math.sin(angle) * inner);
+    ctx.lineTo(x + Math.cos(angle) * 15, y - 57 + Math.sin(angle) * 15);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = "#f6f0df";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x, y - 57);
+  ctx.lineTo(x + 1, y - 71);
+  ctx.moveTo(x, y - 57);
+  ctx.lineTo(x + 11, y - 48);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(255, 82, 92, 0.62)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x - 12, y - 65);
+  ctx.lineTo(x + 5, y - 58);
+  ctx.lineTo(x - 4, y - 46);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.5)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x, y - 22);
+  ctx.lineTo(x, y + 12);
+  ctx.stroke();
+  ctx.fillStyle = "#e7c46a";
+  ctx.beginPath();
+  ctx.ellipse(x, y + 18, 8, 11, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(246, 240, 223, 0.18)";
+  ctx.fillRect(x - 20, y - 78, 4, 104);
+  ctx.fillStyle = "rgba(255, 82, 92, 0.22)";
+  ctx.fillRect(x + 17, y - 18, 3, 38);
+
+  ctx.fillStyle = "rgba(231, 196, 106, 0.55)";
+  ctx.font = "700 8px Trebuchet MS, Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("CREEL", x, y + 40);
+
+  ctx.restore();
+}
+
 function drawShelf(prop) {
   if (drawAsset("bookshelf", prop.x - 8, prop.y - 22, prop.w + 16, prop.h + 44)) return;
 
@@ -1110,17 +2554,29 @@ function drawBookRow(x, y, width, height, colors, offset) {
 
 function drawClue(prop) {
   ctx.save();
-  ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
-  ctx.fillRect(prop.x + 6, prop.y + 6, prop.w, prop.h);
-  fillRoundRect(prop.x, prop.y, prop.w, prop.h, 6, "#7a6040");
-  fillRoundRect(prop.x + 10, prop.y + 8, prop.w - 20, prop.h - 16, 4, "#4b3a2c");
+  ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
+  ctx.fillRect(prop.x + 7, prop.y + 7, prop.w, prop.h);
+  fillRoundRect(prop.x, prop.y, prop.w, prop.h, 7, "#6a4a2f");
+  fillRoundRect(prop.x + 9, prop.y + 8, prop.w - 18, prop.h - 16, 4, "#2a1d1f");
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.58)";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(prop.x + 9, prop.y + 8, prop.w - 18, prop.h - 16);
+  ctx.fillStyle = "rgba(255, 244, 184, 0.1)";
+  ctx.fillRect(prop.x + 18, prop.y + 18, prop.w - 36, 4);
+  ctx.fillRect(prop.x + 18, prop.y + 34, prop.w - 36, 3);
+  ctx.fillRect(prop.x + 18, prop.y + 50, prop.w - 36, 3);
   ctx.fillStyle = "#e7c46a";
   ctx.font = "700 11px Trebuchet MS, Arial";
   ctx.textAlign = "center";
-  ctx.fillText("CLUE", prop.x + prop.w / 2, prop.y + 20);
+  ctx.fillText("SIGNAL", prop.x + prop.w / 2, prop.y + 21);
   ctx.font = "10px Trebuchet MS, Arial";
-  ctx.fillText("Night watches.", prop.x + prop.w / 2, prop.y + 38);
-  ctx.fillText("Fire answers.", prop.x + prop.w / 2, prop.y + 52);
+  ctx.fillText("Lights speak.", prop.x + prop.w / 2, prop.y + 38);
+  ctx.fillText("Clock answers.", prop.x + prop.w / 2, prop.y + 52);
+  ctx.strokeStyle = "rgba(116, 242, 163, 0.42)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(prop.x + prop.w - 18, prop.y + 18, 6, 0, Math.PI * 2);
+  ctx.stroke();
   ctx.restore();
 }
 
@@ -1182,7 +2638,7 @@ function drawMachine(prop) {
   ctx.fillStyle = "#74f2a3";
   ctx.font = "700 10px Trebuchet MS, Arial";
   ctx.textAlign = "center";
-  ctx.fillText("CORE", prop.x + prop.w / 2, prop.y + prop.h / 2 + 4);
+  ctx.fillText("RIFT", prop.x + prop.w / 2, prop.y + prop.h / 2 + 4);
   ctx.fillStyle = "#74f2a3";
   for (let i = 0; i < 4; i += 1) {
     ctx.beginPath();
@@ -1201,13 +2657,7 @@ function drawChamber(prop) {
       drawCaptiveFriend(prop);
     }
     if (disabled) {
-      ctx.save();
-      ctx.strokeStyle = "rgba(246, 240, 223, 0.62)";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.roundRect(prop.x + 16, prop.y - 8, prop.w - 32, prop.h + 6, 28);
-      ctx.stroke();
-      ctx.restore();
+      drawReleasedChamberOverlay(prop);
     }
     return;
   }
@@ -1260,6 +2710,50 @@ function drawChamber(prop) {
   ctx.stroke();
 }
 
+function drawReleasedChamberOverlay(prop) {
+  const cx = prop.x + prop.w / 2;
+  const cy = prop.y + prop.h / 2;
+
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  const releaseGlow = ctx.createRadialGradient(cx, cy, 10, cx, cy, prop.w * 0.8);
+  releaseGlow.addColorStop(0, "rgba(255, 244, 184, 0.38)");
+  releaseGlow.addColorStop(0.42, "rgba(143, 239, 255, 0.22)");
+  releaseGlow.addColorStop(1, "rgba(143, 239, 255, 0)");
+  ctx.fillStyle = releaseGlow;
+  ctx.beginPath();
+  ctx.arc(cx, cy, prop.w * 0.82, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.78)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.roundRect(prop.x + 16, prop.y - 8, prop.w - 32, prop.h + 6, 28);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(255, 91, 96, 0.72)";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(cx - 24, prop.y + 8);
+  ctx.lineTo(cx - 8, cy - 16);
+  ctx.lineTo(cx - 18, cy + 8);
+  ctx.lineTo(cx - 2, prop.y + prop.h - 2);
+  ctx.moveTo(cx + 24, prop.y + 10);
+  ctx.lineTo(cx + 8, cy - 10);
+  ctx.lineTo(cx + 18, cy + 12);
+  ctx.lineTo(cx + 4, prop.y + prop.h);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(143, 239, 255, 0.58)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(cx, cy, prop.w * 0.42, -0.3, Math.PI * 1.2);
+  ctx.arc(cx, cy, prop.w * 0.56, Math.PI * 0.58, Math.PI * 1.82);
+  ctx.stroke();
+  ctx.restore();
+}
+
 function drawCaptiveFriend(prop) {
   ctx.save();
   ctx.fillStyle = "rgba(255, 244, 184, 0.18)";
@@ -1309,12 +2803,16 @@ function drawScientist(prop) {
 function drawExits(room) {
   for (const exit of room.exits) {
     const locked = exit.item && !state.inventory.includes(exit.item);
-    const isStairs = exit.label.includes("stair") || exit.label.includes("staircase");
-    const isLibrary = exit.label.includes("library");
-    const isEstate = exit.label.includes("estate");
+    const isStairs = exit.label.includes("stair") || exit.label.includes("staircase") || exit.label.includes("Vecna's lair");
+    const isStudy = exit.label.includes("study");
+    const isEstate = exit.label.includes("Creel") || exit.label.includes("Hawkins");
     const usesDoorAsset = !isStairs && drawAsset("door", exit.x - 12, exit.y - 18, exit.w + 24, exit.h + 34);
 
     if (usesDoorAsset) {
+      if (isStudy || isEstate) {
+        drawCreelDoorwayFrame(exit, locked, isStudy, isEstate);
+      }
+
       if (locked) {
         ctx.save();
         ctx.fillStyle = "rgba(232, 77, 91, 0.28)";
@@ -1325,12 +2823,12 @@ function drawExits(room) {
         ctx.restore();
       }
 
-      if (isLibrary || isEstate) {
+      if (isStudy || isEstate) {
         ctx.save();
         ctx.fillStyle = "#e7c46a";
         ctx.font = "700 9px Trebuchet MS, Arial";
         ctx.textAlign = "center";
-        ctx.fillText(isLibrary ? "LIBRARY" : "DOOR", exit.x + exit.w / 2, exit.y - 12);
+        ctx.fillText(getExitShortLabel(exit, isStudy, isEstate), exit.x + exit.w / 2, exit.y - 12);
         ctx.restore();
       }
 
@@ -1344,12 +2842,18 @@ function drawExits(room) {
     ctx.lineWidth = 4;
     ctx.strokeRect(exit.x - 6, exit.y - 6, exit.w + 12, exit.h + 12);
     ctx.restore();
-    ctx.fillStyle = locked ? "rgba(232, 77, 91, 0.36)" : (isEstate || isLibrary ? "#5a3c24" : "rgba(231, 196, 106, 0.42)");
+
+    if (isStairs) {
+      drawStairGateExit(exit, locked);
+      continue;
+    }
+
+    ctx.fillStyle = locked ? "rgba(232, 77, 91, 0.36)" : (isEstate || isStudy ? "#5a3c24" : "rgba(231, 196, 106, 0.42)");
     fillRoundRect(exit.x, exit.y, exit.w, exit.h, isStairs ? 4 : 6, ctx.fillStyle);
     ctx.strokeStyle = locked ? "#e84d5b" : "#e7c46a";
     ctx.lineWidth = 2;
     ctx.strokeRect(exit.x, exit.y, exit.w, exit.h);
-    if (isEstate || isLibrary) {
+    if (isEstate || isStudy) {
       ctx.strokeStyle = "rgba(21, 16, 28, 0.55)";
       ctx.beginPath();
       ctx.moveTo(exit.x + exit.w / 2, exit.y + 6);
@@ -1360,18 +2864,132 @@ function drawExits(room) {
       ctx.arc(exit.x + exit.w - 11, exit.y + exit.h / 2, 3, 0, Math.PI * 2);
       ctx.fill();
     }
-    if (isStairs) {
-      ctx.fillStyle = locked ? "#e84d5b" : "#e7c46a";
-      ctx.font = "700 10px Trebuchet MS, Arial";
-      ctx.textAlign = "center";
-      ctx.fillText("STAIRS", exit.x + exit.w / 2, exit.y - 12);
-    } else if (isLibrary || isEstate) {
+    if (isStudy || isEstate) {
       ctx.fillStyle = "#e7c46a";
       ctx.font = "700 9px Trebuchet MS, Arial";
       ctx.textAlign = "center";
-      ctx.fillText(isLibrary ? "LIBRARY" : "DOOR", exit.x + exit.w / 2, exit.y - 10);
+      ctx.fillText(getExitShortLabel(exit, isStudy, isEstate), exit.x + exit.w / 2, exit.y - 10);
     }
   }
+}
+
+function drawCreelDoorwayFrame(exit, locked, isStudy, isEstate) {
+  ctx.save();
+  const frameX = exit.x - 16;
+  const frameY = exit.y - 20;
+  const frameW = exit.w + 32;
+  const frameH = exit.h + 38;
+  const thresholdY = exit.y + exit.h + 9;
+
+  ctx.fillStyle = "rgba(4, 4, 7, 0.42)";
+  fillRoundRect(frameX + 6, frameY + 8, frameW - 12, frameH - 2, 6, ctx.fillStyle);
+
+  ctx.fillStyle = locked ? "rgba(58, 18, 28, 0.42)" : "rgba(10, 8, 13, 0.48)";
+  fillRoundRect(exit.x - 4, exit.y - 9, exit.w + 8, exit.h + 20, 5, ctx.fillStyle);
+
+  ctx.strokeStyle = locked ? "rgba(232, 77, 91, 0.72)" : "rgba(231, 196, 106, 0.58)";
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(frameX + 8, frameY + frameH - 4);
+  ctx.lineTo(frameX + 8, frameY + 8);
+  ctx.lineTo(frameX + frameW - 8, frameY + 8);
+  ctx.lineTo(frameX + frameW - 8, frameY + frameH - 4);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.24)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(frameX + 16, frameY + 16);
+  ctx.lineTo(frameX + frameW - 16, frameY + 16);
+  ctx.moveTo(frameX + 17, frameY + 18);
+  ctx.lineTo(frameX + 17, frameY + frameH - 10);
+  ctx.moveTo(frameX + frameW - 17, frameY + 18);
+  ctx.lineTo(frameX + frameW - 17, frameY + frameH - 10);
+  ctx.stroke();
+
+  ctx.fillStyle = isStudy ? "rgba(58, 42, 47, 0.5)" : "rgba(90, 60, 36, 0.42)";
+  ctx.fillRect(frameX + 10, thresholdY, frameW - 20, 8);
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.46)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(frameX + 12, thresholdY);
+  ctx.lineTo(frameX + frameW - 12, thresholdY);
+  ctx.stroke();
+
+  if (isStudy) {
+    ctx.strokeStyle = "rgba(246, 240, 223, 0.22)";
+    ctx.lineWidth = 2;
+    for (let y = exit.y + 10; y < exit.y + exit.h; y += 13) {
+      ctx.beginPath();
+      ctx.moveTo(exit.x - 7, y);
+      ctx.lineTo(exit.x - 15, y + 5);
+      ctx.stroke();
+    }
+  }
+
+  if (isEstate && exit.label.includes("Hawkins")) {
+    ctx.strokeStyle = "rgba(143, 239, 255, 0.22)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(exit.x + 6, exit.y + exit.h + 1);
+    ctx.lineTo(exit.x + exit.w / 2, exit.y + exit.h + 13);
+    ctx.lineTo(exit.x + exit.w - 6, exit.y + exit.h + 1);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function getExitShortLabel(exit, isStudy, isEstate) {
+  if (isStudy) return "STUDY";
+  if (isEstate && exit.label.includes("Hawkins")) return "STREET";
+  if (isEstate && exit.label.includes("Creel")) return "HOUSE";
+  return "GATE";
+}
+
+function drawStairGateExit(exit, locked) {
+  ctx.save();
+  const cx = exit.x + exit.w / 2;
+  const cy = exit.y + exit.h / 2;
+  const glow = ctx.createRadialGradient(cx, cy, 8, cx, cy, 66);
+  glow.addColorStop(0, locked ? "rgba(232, 77, 91, 0.28)" : "rgba(231, 196, 106, 0.22)");
+  glow.addColorStop(1, "rgba(232, 77, 91, 0)");
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 66, 0, Math.PI * 2);
+  ctx.fill();
+
+  fillRoundRect(exit.x - 4, exit.y - 5, exit.w + 8, exit.h + 10, 5, locked ? "rgba(84, 24, 34, 0.62)" : "rgba(90, 60, 36, 0.58)");
+  ctx.strokeStyle = locked ? "#e84d5b" : "#e7c46a";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(exit.x - 2, exit.y - 3, exit.w + 4, exit.h + 6);
+
+  ctx.strokeStyle = locked ? "rgba(255, 181, 172, 0.78)" : "rgba(246, 240, 223, 0.64)";
+  ctx.lineWidth = 3;
+  for (let y = exit.y + 9; y < exit.y + exit.h - 3; y += 11) {
+    ctx.beginPath();
+    ctx.moveTo(exit.x + 10, y);
+    ctx.lineTo(exit.x + exit.w - 10, y);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = locked ? "#e84d5b" : "#e7c46a";
+  ctx.beginPath();
+  ctx.moveTo(cx, exit.y + 7);
+  ctx.lineTo(cx - 9, exit.y + 22);
+  ctx.lineTo(cx - 3, exit.y + 22);
+  ctx.lineTo(cx - 3, exit.y + exit.h - 10);
+  ctx.lineTo(cx + 3, exit.y + exit.h - 10);
+  ctx.lineTo(cx + 3, exit.y + 22);
+  ctx.lineTo(cx + 9, exit.y + 22);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = locked ? "#ffb5ac" : "#f6f0df";
+  ctx.font = "700 10px Trebuchet MS, Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(locked ? "LOCKED" : "GATE", cx, exit.y - 10);
+  ctx.restore();
 }
 
 function drawItems(room) {
@@ -1387,6 +3005,7 @@ function drawKeyItem(item) {
   const pulse = 0.76 + Math.sin(performance.now() / 160) * 0.16;
   if (assetImages.key?.complete) {
     ctx.save();
+    drawSignalKeyReveal(item, pulse);
     ctx.globalAlpha = pulse;
     ctx.drawImage(assetImages.key, item.x - 30, item.y - 30, 60, 60);
     ctx.restore();
@@ -1415,6 +3034,32 @@ function drawKeyItem(item) {
   ctx.restore();
 }
 
+function drawSignalKeyReveal(item, pulse) {
+  if (item.id !== "signal-key") return;
+
+  ctx.save();
+  ctx.globalAlpha = 1;
+  const glow = ctx.createRadialGradient(item.x, item.y, 8, item.x, item.y, 58);
+  glow.addColorStop(0, `rgba(231, 196, 106, ${0.22 + pulse * 0.12})`);
+  glow.addColorStop(0.5, "rgba(116, 242, 163, 0.08)");
+  glow.addColorStop(1, "rgba(231, 196, 106, 0)");
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(item.x, item.y, 58, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(16, 10, 14, 0.72)";
+  ctx.beginPath();
+  ctx.ellipse(item.x, item.y + 27, 38, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(231, 196, 106, 0.48)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(item.x, item.y, 34, Math.PI * 0.08, Math.PI * 1.86);
+  ctx.stroke();
+  ctx.restore();
+}
+
 function drawSymbols(room) {
   if (!room.symbols) return;
 
@@ -1425,6 +3070,7 @@ function drawSymbols(room) {
     const pulse = symbol.activated ? 1 : 0.72 + Math.sin(performance.now() / 160) * 0.18;
     ctx.save();
     ctx.globalAlpha = pulse;
+    drawStudySymbolPlaque(symbol);
     ctx.strokeStyle = symbol.activated ? "#74f2a3" : "#fff4b8";
     ctx.fillStyle = symbol.activated ? "rgba(116, 242, 163, 0.22)" : "rgba(231, 196, 106, 0.18)";
     ctx.lineWidth = 3;
@@ -1443,6 +3089,26 @@ function drawSymbols(room) {
     }
     ctx.restore();
   }
+}
+
+function drawStudySymbolPlaque(symbol) {
+  const active = symbol.activated;
+  ctx.save();
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = active ? "rgba(23, 49, 31, 0.78)" : "rgba(24, 17, 22, 0.76)";
+  ctx.beginPath();
+  ctx.roundRect(symbol.x - 25, symbol.y - 25, 50, 50, 7);
+  ctx.fill();
+  ctx.strokeStyle = active ? "rgba(116, 242, 163, 0.64)" : "rgba(231, 196, 106, 0.42)";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(symbol.x - 20, symbol.y - 20, 40, 40);
+
+  ctx.strokeStyle = active ? "rgba(116, 242, 163, 0.22)" : "rgba(255, 244, 184, 0.16)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(symbol.x, symbol.y, 29, 0.25, Math.PI * 1.82);
+  ctx.stroke();
+  ctx.restore();
 }
 
 function drawMoonSymbol(x, y) {
@@ -1478,14 +3144,124 @@ function drawNodes(room) {
   if (!room.nodes) return;
 
   for (const node of room.nodes) {
-    ctx.fillStyle = node.active ? "#74f2a3" : "#4f5654";
+    drawPsychicAnchor(node);
+  }
+}
+
+function drawPsychicAnchor(node) {
+  ctx.save();
+  ctx.translate(node.x, node.y);
+
+  if (!node.active) {
+    drawBrokenPsychicAnchor();
+    ctx.restore();
+    return;
+  }
+
+  const pulse = 0.5 + Math.sin(performance.now() / 220 + node.x * 0.01) * 0.5;
+  const halo = ctx.createRadialGradient(0, 0, 6, 0, 0, 42 + pulse * 8);
+  halo.addColorStop(0, "rgba(255, 82, 92, 0.28)");
+  halo.addColorStop(0.45, "rgba(116, 242, 163, 0.14)");
+  halo.addColorStop(1, "rgba(255, 82, 92, 0)");
+  ctx.fillStyle = halo;
+  ctx.beginPath();
+  ctx.arc(0, 0, 50, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(87, 32, 39, 0.82)";
+  ctx.lineWidth = 6;
+  ctx.lineCap = "round";
+  for (let i = 0; i < 4; i += 1) {
+    const angle = i * Math.PI / 2 + pulse * 0.18;
     ctx.beginPath();
-    ctx.arc(node.x, node.y, 18, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = node.active ? "#d6ffe4" : "#87908c";
-    ctx.lineWidth = 3;
+    ctx.moveTo(Math.cos(angle) * 16, Math.sin(angle) * 16);
+    ctx.quadraticCurveTo(Math.cos(angle + 0.35) * 30, Math.sin(angle + 0.35) * 30, Math.cos(angle) * 42, Math.sin(angle) * 42);
     ctx.stroke();
   }
+
+  ctx.strokeStyle = "rgba(255, 91, 96, 0.72)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(0, 0, 25 + pulse * 2, -0.45, Math.PI * 1.48);
+  ctx.stroke();
+  ctx.strokeStyle = "rgba(182, 255, 218, 0.58)";
+  ctx.beginPath();
+  ctx.arc(0, 0, 18, Math.PI * 0.64, Math.PI * 1.86);
+  ctx.stroke();
+
+  ctx.fillStyle = "#0b080d";
+  ctx.beginPath();
+  ctx.arc(0, 0, 20, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#ff525c";
+  ctx.lineWidth = 4;
+  ctx.stroke();
+
+  ctx.fillStyle = "#74f2a3";
+  ctx.beginPath();
+  ctx.arc(0, 0, 9 + pulse * 2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#f6f0df";
+  ctx.beginPath();
+  ctx.arc(-3, -3, 3, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "#1a0c12";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-12, -14);
+  ctx.lineTo(-2, -3);
+  ctx.lineTo(-9, 9);
+  ctx.moveTo(11, -12);
+  ctx.lineTo(3, 1);
+  ctx.lineTo(13, 11);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawBrokenPsychicAnchor() {
+  ctx.fillStyle = "rgba(4, 4, 7, 0.46)";
+  ctx.beginPath();
+  ctx.ellipse(0, 8, 28, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(135, 144, 140, 0.5)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(0, 0, 21, Math.PI * 0.08, Math.PI * 0.82);
+  ctx.arc(0, 0, 21, Math.PI * 1.12, Math.PI * 1.78);
+  ctx.stroke();
+
+  ctx.fillStyle = "#343939";
+  ctx.strokeStyle = "#111417";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-16, -10);
+  ctx.lineTo(-2, -17);
+  ctx.lineTo(4, -2);
+  ctx.lineTo(-9, 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(7, -9);
+  ctx.lineTo(19, -2);
+  ctx.lineTo(13, 14);
+  ctx.lineTo(0, 5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(255, 82, 92, 0.42)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-20, 8);
+  ctx.lineTo(-6, 1);
+  ctx.moveTo(5, 4);
+  ctx.lineTo(22, 13);
+  ctx.stroke();
 }
 
 function drawEnemies(room) {
@@ -1794,6 +3570,7 @@ function drawLighting(room) {
   }
 
   drawPlayerAura();
+  drawRoomLightAccents(room);
   if (room.nodes) {
     ctx.globalCompositeOperation = "screen";
     for (const node of room.nodes) {
@@ -1807,6 +3584,104 @@ function drawLighting(room) {
       ctx.fill();
     }
     ctx.globalCompositeOperation = "source-over";
+  }
+
+  ctx.restore();
+}
+
+function drawRoomLightAccents(room) {
+  if (room.name === "Hawkins Street") {
+    drawHawkinsStreetLightAccents();
+    return;
+  }
+
+  if (room.name !== "Creel House Entry") return;
+
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  const pathGlow = ctx.createLinearGradient(480, 530, 480, 120);
+  pathGlow.addColorStop(0, "rgba(231, 196, 106, 0.02)");
+  pathGlow.addColorStop(0.62, "rgba(231, 196, 106, 0.04)");
+  pathGlow.addColorStop(1, "rgba(232, 77, 91, 0.07)");
+  ctx.fillStyle = pathGlow;
+  ctx.beginPath();
+  ctx.moveTo(430, 536);
+  ctx.quadraticCurveTo(454, 368, 462, 136);
+  ctx.lineTo(498, 136);
+  ctx.quadraticCurveTo(506, 368, 530, 536);
+  ctx.closePath();
+  ctx.fill();
+
+  for (const [x, y, radius] of [[250, 214, 96], [710, 214, 96], [320, 492, 78], [640, 492, 78]]) {
+    const glow = ctx.createRadialGradient(x, y - 16, 6, x, y - 16, radius);
+    glow.addColorStop(0, "rgba(255, 220, 128, 0.2)");
+    glow.addColorStop(0.42, "rgba(231, 196, 106, 0.08)");
+    glow.addColorStop(1, "rgba(231, 196, 106, 0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y - 16, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const gateGlow = ctx.createRadialGradient(480, 92, 10, 480, 92, 120);
+  gateGlow.addColorStop(0, "rgba(232, 77, 91, 0.14)");
+  gateGlow.addColorStop(1, "rgba(232, 77, 91, 0)");
+  ctx.fillStyle = gateGlow;
+  ctx.beginPath();
+  ctx.arc(480, 92, 120, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawHawkinsStreetLightAccents() {
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+
+  const streetlampGlow = ctx.createRadialGradient(112, 284, 10, 112, 284, 154);
+  streetlampGlow.addColorStop(0, "rgba(231, 196, 106, 0.22)");
+  streetlampGlow.addColorStop(0.34, "rgba(231, 196, 106, 0.09)");
+  streetlampGlow.addColorStop(1, "rgba(231, 196, 106, 0)");
+  ctx.fillStyle = streetlampGlow;
+  ctx.beginPath();
+  ctx.arc(112, 284, 154, 0, Math.PI * 2);
+  ctx.fill();
+
+  const lampPool = ctx.createRadialGradient(132, 456, 10, 132, 456, 136);
+  lampPool.addColorStop(0, "rgba(143, 239, 255, 0.08)");
+  lampPool.addColorStop(0.42, "rgba(231, 196, 106, 0.05)");
+  lampPool.addColorStop(1, "rgba(143, 239, 255, 0)");
+  ctx.fillStyle = lampPool;
+  ctx.beginPath();
+  ctx.ellipse(132, 456, 136, 62, -0.08, 0, Math.PI * 2);
+  ctx.fill();
+
+  const houseRift = ctx.createRadialGradient(480, 282, 12, 480, 282, 150);
+  houseRift.addColorStop(0, "rgba(255, 82, 92, 0.18)");
+  houseRift.addColorStop(0.42, "rgba(120, 158, 176, 0.07)");
+  houseRift.addColorStop(1, "rgba(255, 82, 92, 0)");
+  ctx.fillStyle = houseRift;
+  ctx.beginPath();
+  ctx.arc(480, 282, 150, 0, Math.PI * 2);
+  ctx.fill();
+
+  const pathSignal = ctx.createLinearGradient(142, 470, 480, 286);
+  pathSignal.addColorStop(0, "rgba(143, 239, 255, 0.025)");
+  pathSignal.addColorStop(0.55, "rgba(231, 196, 106, 0.04)");
+  pathSignal.addColorStop(1, "rgba(255, 82, 92, 0.08)");
+  ctx.fillStyle = pathSignal;
+  ctx.beginPath();
+  ctx.moveTo(112, 488);
+  ctx.quadraticCurveTo(288, 438, 444, 310);
+  ctx.lineTo(516, 310);
+  ctx.quadraticCurveTo(350, 448, 176, 520);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(116, 242, 163, 0.1)";
+  for (const [x, y, r] of [[408, 326, 2.4], [450, 304, 1.8], [528, 306, 2], [568, 330, 1.7], [612, 360, 1.5]]) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   ctx.restore();
@@ -2059,8 +3934,8 @@ function drawWinOverlay() {
   ctx.font = "700 42px Trebuchet MS, Arial";
   ctx.fillText("Rescue Complete", W / 2, 262);
   ctx.font = "20px Trebuchet MS, Arial";
-  ctx.fillText("You found your friend, broke the machine,", W / 2, 300);
-  ctx.fillText("and escaped Blackwood Estate together.", W / 2, 326);
+  ctx.fillText("You pulled Eleven back from Vecna's hold.", W / 2, 300);
+  ctx.fillText("Hawkins still has a chance.", W / 2, 326);
 }
 
 function isItemVisible(item) {
@@ -2086,10 +3961,10 @@ function activateLibrarySymbol(symbol) {
 
   if (state.libraryPuzzle.progress >= state.libraryPuzzle.order.length) {
     state.libraryPuzzle.solved = true;
-    showMessage("A hidden drawer opens. The stair key appears.");
+    showMessage("The lights flicker in sequence. The signal key appears.");
   } else {
     const next = state.libraryPuzzle.order[state.libraryPuzzle.progress];
-    showMessage(`${capitalize(symbol.id)} answers. Seek ${capitalize(next)}.`);
+    showMessage(`${symbolLabel(symbol.id)} answers. Seek ${symbolLabel(next)}.`);
   }
 }
 
@@ -2099,18 +3974,27 @@ function resetLibraryPuzzle() {
   state.libraryPuzzle.progress = 0;
   state.libraryPuzzle.penaltyTimer = 3;
   state.fear = clamp(state.fear + 14, 0, 100);
-  showMessage("The shelf rejects the order. The ghost stirs.");
+  showMessage("The pattern breaks. A Demogorgon hears you.");
 }
 
 function getLibraryObjective() {
-  if (state.libraryPuzzle.solved && !state.inventory.includes("stair key")) return "Take the stair key";
-  if (state.libraryPuzzle.solved) return "Return to the foyer";
+  if (state.libraryPuzzle.solved && !state.inventory.includes("signal key")) return "Take the signal key";
+  if (state.libraryPuzzle.solved) return "Return to the Creel House entry";
   const next = state.libraryPuzzle.order[state.libraryPuzzle.progress];
-  return `Activate ${capitalize(next)}`;
+  return `Tune to ${symbolLabel(next)}`;
 }
 
 function capitalize(value) {
   return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function symbolLabel(id) {
+  const labels = {
+    moon: "Lights",
+    eye: "Clock",
+    flame: "Flame"
+  };
+  return labels[id] || capitalize(id);
 }
 
 function pointInFlashlight(x, y) {

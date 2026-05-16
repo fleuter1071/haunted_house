@@ -1,11 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 128" role="img" aria-label="Haunted estate door">
-  <rect x="10" y="6" width="76" height="116" rx="6" fill="#21151a"/>
-  <rect x="18" y="14" width="60" height="104" rx="4" fill="#8a6338"/>
-  <rect x="25" y="24" width="46" height="84" fill="#4b321f"/>
-  <rect x="31" y="31" width="34" height="30" fill="#5a3c24" stroke="#e7c46a" stroke-opacity=".42" stroke-width="3"/>
-  <rect x="31" y="70" width="34" height="30" fill="#5a3c24" stroke="#e7c46a" stroke-opacity=".42" stroke-width="3"/>
-  <circle cx="65" cy="66" r="5" fill="#e7c46a"/>
-  <rect x="12" y="114" width="72" height="8" fill="#05060a" opacity=".38"/>
-  <path d="M21 14h54M21 118h54" stroke="#f6f0df" stroke-opacity=".22" stroke-width="3"/>
-  <rect x="10" y="6" width="76" height="116" rx="6" fill="none" stroke="#e7c46a" stroke-opacity=".55" stroke-width="4"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 128" role="img" aria-label="Old Creel House wooden door with frame, panels, knob, and threshold">
+  <ellipse cx="48" cy="122" rx="38" ry="6" fill="#05060a" opacity=".36"/>
+  <rect x="8" y="5" width="80" height="118" rx="6" fill="#1b1116" stroke="#05060a" stroke-width="5"/>
+  <rect x="16" y="13" width="64" height="105" rx="4" fill="#8a6338"/>
+  <rect x="23" y="21" width="50" height="90" rx="2" fill="#4b321f" stroke="#21151a" stroke-width="4"/>
+
+  <rect x="30" y="29" width="36" height="29" fill="#5a3c24" stroke="#e7c46a" stroke-opacity=".42" stroke-width="3"/>
+  <rect x="30" y="69" width="36" height="31" fill="#5a3c24" stroke="#e7c46a" stroke-opacity=".42" stroke-width="3"/>
+  <path d="M38 29v29M58 29v29M38 69v31M58 69v31" stroke="#21151a" stroke-opacity=".42" stroke-width="2"/>
+
+  <circle cx="66" cy="64" r="5" fill="#e7c46a" stroke="#05060a" stroke-opacity=".48" stroke-width="2"/>
+  <circle cx="66" cy="64" r="2" fill="#fff4b8"/>
+  <rect x="12" y="113" width="72" height="9" fill="#05060a" opacity=".44"/>
+  <path d="M19 14h58M19 118h58M16 13v106M80 13v106" stroke="#f6f0df" stroke-opacity=".18" stroke-width="3"/>
+  <path d="M23 21 16 13M73 21l7-8" stroke="#e7c46a" stroke-opacity=".32" stroke-width="3" stroke-linecap="round"/>
+  <rect x="8" y="5" width="80" height="118" rx="6" fill="none" stroke="#e7c46a" stroke-opacity=".55" stroke-width="4"/>
 </svg>

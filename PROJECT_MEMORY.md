@@ -69,3 +69,14 @@ This file records durable project/session notes for future work.
 - **Key learnings that you can bring with you to future sessions:** In this Canvas game, render order matters as much as asset quality. Important story/gameplay objects should be drawn after walls or other occluding geometry when readability matters. If a visual asset still cannot be seen after improving detail, inspect layering and coordinates before adding more art detail.
 - **Remaining TODOs:** Consider adding a simple post-rescue visual state where the friend appears outside the chamber after victory. Consider automated screenshot/playtest checks for final-room readability.
 - **Next steps:** Playtest the lab sequence end to end and confirm the friend, scientist, chamber, power nodes, and win interaction all read clearly under the darkness/flashlight system.
+
+### 2026-05-11 00:00 - Styled Walls And Rescue Ending Sequence
+
+- **Feature name, work name, description, and value provided:** Enhanced room walls and the game ending, then pushed to production in commit `adaeb91`. Walls now have room-specific material details, and the final rescue now plays as a short event with chamber burst, friend reunion, scientist defeat cue, warm glow, and stronger final copy.
+- **Files changed:** `script.js`, `PROJECT_MEMORY.md`
+- **Technical Architecture changes or key technical decisions made:** Replaced flat wall rectangle painting with `drawStyledWall(wall, room)` plus room-specific material helpers for stone, wood, library trim/books, and lab metal. Added ending state flow with `endingPhase` and `endingTimer` values: `playing`, `chamberOpening`, `reunited`, and `complete`. Added dedicated rendering helpers for chamber burst, freed friend, reunion sparks, scientist defeat cue, and final overlay.
+- **Assumptions:** Better walls should improve room identity without changing movement/collision. The ending should feel like a payoff event, not an instant text overlay, while staying scoped enough for the MVP.
+- **Known limitations:** The rescue sequence is still Canvas-drawn and time-based rather than a full cutscene/animation system. No audio, camera shake, or automated visual regression checks were added.
+- **Key learnings that you can bring with you to future sessions:** Keep collision geometry separate from visual styling. For emotional payoff, a small state machine can create a much stronger moment than a single win flag and overlay. Wall readability is part of navigation clarity, not just background polish.
+- **Remaining TODOs:** Playtest the ending timing, check if the scientist defeat cue feels too text-heavy, and consider adding audio/particles/camera pulse later.
+- **Next steps:** Consider converting power nodes and library symbols to SVG or adding lightweight animation/audio feedback for high-value interactions.

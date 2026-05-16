@@ -1,23 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Crazed lab experiment enemy">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Vecna-controlled floating shadow minion">
   <defs>
-    <radialGradient id="experimentGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0" stop-color="#74f2a3" stop-opacity=".36"/>
-      <stop offset="1" stop-color="#74f2a3" stop-opacity="0"/>
+    <radialGradient id="shadowAura" cx="50%" cy="50%" r="55%">
+      <stop offset="0" stop-color="#ff5360" stop-opacity=".34"/>
+      <stop offset=".42" stop-color="#244f3e" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#05070a" stop-opacity="0"/>
     </radialGradient>
+    <radialGradient id="coreGlow" cx="50%" cy="44%" r="44%">
+      <stop offset="0" stop-color="#b8ffcf"/>
+      <stop offset=".48" stop-color="#45b06f"/>
+      <stop offset="1" stop-color="#0c1512"/>
+    </radialGradient>
+    <linearGradient id="smokeBody" x1="30" x2="96" y1="28" y2="112">
+      <stop offset="0" stop-color="#26332f"/>
+      <stop offset=".58" stop-color="#111116"/>
+      <stop offset="1" stop-color="#050507"/>
+    </linearGradient>
   </defs>
-  <circle cx="64" cy="64" r="58" fill="url(#experimentGlow)"/>
-  <path d="M31 65c0-23 17-40 39-37 21 3 34 18 31 40-3 25-20 39-43 35-18-3-27-18-27-38z" fill="#285d44" stroke="#193126" stroke-width="6"/>
-  <circle cx="48" cy="48" r="16" fill="#74f2a3"/>
-  <circle cx="73" cy="43" r="19" fill="#74f2a3"/>
-  <circle cx="64" cy="69" r="24" fill="#5fce85"/>
-  <circle cx="54" cy="55" r="5" fill="#0b1710"/>
-  <circle cx="76" cy="55" r="5" fill="#0b1710"/>
-  <path d="M52 78c8 6 18 6 26 0" stroke="#0b1710" stroke-width="4" stroke-linecap="round"/>
-  <path d="M38 68 16 49M92 66l24-18M49 91l-18 23M79 91l18 23" stroke="#193126" stroke-width="8" stroke-linecap="round"/>
-  <circle cx="16" cy="49" r="7" fill="#74f2a3"/>
-  <circle cx="116" cy="48" r="7" fill="#74f2a3"/>
-  <circle cx="31" cy="114" r="7" fill="#74f2a3"/>
-  <circle cx="97" cy="114" r="7" fill="#74f2a3"/>
-  <path d="M45 73 64 61l20 18M57 88l16-19" stroke="#193126" stroke-width="3" stroke-linecap="round" opacity=".8"/>
-  <path d="M25 34c14-16 35-23 59-14" stroke="#d6ffe4" stroke-opacity=".65" stroke-width="4" stroke-linecap="round"/>
+
+  <circle cx="64" cy="64" r="60" fill="url(#shadowAura)"/>
+  <ellipse cx="64" cy="111" rx="34" ry="9" fill="#020306" opacity=".48"/>
+
+  <path d="M23 65c16-16 29-19 41-9M105 63c-17-13-31-16-42-7M34 93c13-11 23-16 33-15M94 94c-13-12-24-16-34-15" fill="none" stroke="#0b0b10" stroke-width="12" stroke-linecap="round" opacity=".88"/>
+  <path d="M22 64c18-12 32-15 43-8M106 62c-18-10-32-13-44-6M34 93c14-8 25-12 34-14M94 94c-14-9-25-13-35-15" fill="none" stroke="#3b8f5e" stroke-opacity=".38" stroke-width="4" stroke-linecap="round"/>
+
+  <path d="M32 56c3-22 18-36 38-33 18 3 29 17 28 37-1 25-14 43-36 45-21 1-34-18-30-49z" fill="url(#smokeBody)" stroke="#050507" stroke-width="6"/>
+  <path d="M41 58c3-15 13-24 27-22 12 2 20 12 19 25-1 17-9 29-24 31-14 1-24-12-22-34z" fill="#18201f" stroke="#3b8f5e" stroke-opacity=".42" stroke-width="3"/>
+
+  <path d="M49 50c5-7 18-9 28 0" fill="none" stroke="#8fffbc" stroke-opacity=".36" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="54" cy="60" r="6" fill="url(#coreGlow)" stroke="#06100d" stroke-width="3"/>
+  <circle cx="75" cy="60" r="6" fill="url(#coreGlow)" stroke="#06100d" stroke-width="3"/>
+  <path d="M52 78c8 7 17 7 25 0" fill="none" stroke="#ff5360" stroke-width="4" stroke-linecap="round"/>
+  <path d="M56 81h5M67 81h5" stroke="#f0ffd9" stroke-width="2" stroke-linecap="round"/>
+
+  <path d="M62 69c-3 13-8 23-17 32M67 69c3 13 9 24 18 34M64 74c0 16-1 28-4 39" fill="none" stroke="#264d3c" stroke-width="4" stroke-linecap="round"/>
+  <path d="M38 39c13 11 24 17 33 19M90 42c-12 9-23 14-34 16" fill="none" stroke="#ff5360" stroke-opacity=".34" stroke-width="4" stroke-linecap="round"/>
+
+  <circle cx="22" cy="38" r="5" fill="#45b06f" opacity=".75"/>
+  <circle cx="108" cy="38" r="4" fill="#ff5360" opacity=".65"/>
+  <circle cx="19" cy="88" r="4" fill="#ff5360" opacity=".62"/>
+  <circle cx="105" cy="94" r="5" fill="#45b06f" opacity=".66"/>
+  <circle cx="66" cy="17" r="4" fill="#8fffbc" opacity=".58"/>
+
+  <path d="M23 38c12 12 25 19 41 20M108 38C95 50 81 57 64 58M19 88c17-8 31-12 45-12M105 94c-16-10-30-15-44-17" fill="none" stroke="#274a39" stroke-opacity=".44" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 7"/>
 </svg>

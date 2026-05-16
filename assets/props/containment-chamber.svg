@@ -1,17 +1,39 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 170" role="img" aria-label="Glass containment chamber with captive silhouette">
-  <ellipse cx="75" cy="154" rx="54" ry="10" fill="#05060a" opacity=".38"/>
-  <rect x="38" y="8" width="74" height="144" rx="30" fill="#151926"/>
-  <rect x="46" y="18" width="58" height="116" rx="24" fill="#74f2a3" opacity=".18"/>
-  <path d="M52 28c12-12 35-12 46 0v88c-10 12-35 12-46 0z" fill="#8fd9d0" opacity=".28"/>
-  <path d="M57 32c10-9 27-9 36 0" stroke="#f6f0df" stroke-opacity=".45" stroke-width="4" stroke-linecap="round"/>
-  <circle cx="75" cy="67" r="13" fill="#21151a"/>
-  <path d="M75 82 92 116H58z" fill="#3c2a32"/>
-  <path d="M62 97c8 5 18 5 26 0" stroke="#e7c46a" stroke-opacity=".4" stroke-width="4" stroke-linecap="round"/>
-  <rect x="30" y="128" width="90" height="16" rx="4" fill="#4b321f"/>
-  <rect x="24" y="144" width="102" height="12" rx="4" fill="#21151a"/>
-  <path d="M34 42h16M100 42h16M34 104h16M100 104h16" stroke="#8a6338" stroke-width="8" stroke-linecap="round"/>
-  <circle cx="75" cy="144" r="5" fill="#74f2a3"/>
-  <path d="M47 20 37 10M103 20l10-10" stroke="#8a6338" stroke-width="6" stroke-linecap="round"/>
-  <rect x="38" y="8" width="74" height="144" rx="30" fill="none" stroke="#05060a" stroke-opacity=".7" stroke-width="6"/>
-  <path d="M55 28v86" stroke="#f6f0df" stroke-opacity=".18" stroke-width="5" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 170" role="img" aria-label="Psychic prison chamber wrapped in Upside Down vines">
+  <defs>
+    <radialGradient id="prisonGlow" cx="50%" cy="45%" r="55%">
+      <stop offset="0" stop-color="#f8ffff" stop-opacity=".34"/>
+      <stop offset=".45" stop-color="#ff5a64" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#05060a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glassRed" x1="48" x2="102" y1="18" y2="138">
+      <stop offset="0" stop-color="#b7f9ff" stop-opacity=".22"/>
+      <stop offset=".52" stop-color="#ff5a64" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#221018" stop-opacity=".45"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="75" cy="154" rx="54" ry="10" fill="#05060a" opacity=".42"/>
+  <circle cx="75" cy="76" r="65" fill="url(#prisonGlow)"/>
+
+  <path d="M36 31c-12 19-12 48 0 84M114 31c12 19 12 48 0 84M42 17c17 12 25 30 25 55M108 17C91 29 83 47 83 72" fill="none" stroke="#5b1f2a" stroke-width="8" stroke-linecap="round"/>
+  <rect x="36" y="8" width="78" height="144" rx="32" fill="#090b11" stroke="#05060a" stroke-width="7"/>
+  <rect x="46" y="18" width="58" height="116" rx="25" fill="url(#glassRed)" stroke="#b7f9ff" stroke-opacity=".32" stroke-width="4"/>
+
+  <path d="M53 30c12-12 34-12 45 0v86c-10 13-35 13-46 0z" fill="#8fd9d0" opacity=".18"/>
+  <path d="M56 31c10-9 27-9 38 0" stroke="#f8ffff" stroke-opacity=".48" stroke-width="4" stroke-linecap="round"/>
+  <path d="M55 31 66 52l-9 25 16 22-8 24M95 32 84 54l8 24-15 21 7 23" fill="none" stroke="#ff5a64" stroke-opacity=".68" stroke-width="4" stroke-linecap="round"/>
+
+  <circle cx="75" cy="68" r="13" fill="#0d0a10" stroke="#48c783" stroke-opacity=".55" stroke-width="3"/>
+  <path d="M75 83 94 119H56z" fill="#251018" stroke="#ff5a64" stroke-opacity=".34" stroke-width="3"/>
+  <path d="M62 98c8 5 18 5 26 0" stroke="#f8ffff" stroke-opacity=".38" stroke-width="4" stroke-linecap="round"/>
+
+  <path d="M31 43h23M96 43h23M31 103h23M96 103h23" stroke="#5b3421" stroke-width="8" stroke-linecap="round"/>
+  <path d="M28 128h94" stroke="#5b1f2a" stroke-width="10" stroke-linecap="round"/>
+  <rect x="24" y="141" width="102" height="14" rx="5" fill="#150b11" stroke="#05060a" stroke-width="3"/>
+  <circle cx="75" cy="144" r="6" fill="#ff5a64"/>
+  <circle cx="75" cy="144" r="3" fill="#f8ffff"/>
+
+  <path d="M47 20 37 10M103 20l10-10" stroke="#5b3421" stroke-width="6" stroke-linecap="round"/>
+  <path d="M54 30v86" stroke="#f8ffff" stroke-opacity=".17" stroke-width="5" stroke-linecap="round"/>
+  <path d="M44 137c20-7 41-7 62 0" fill="none" stroke="#48c783" stroke-opacity=".22" stroke-width="4" stroke-linecap="round"/>
 </svg>

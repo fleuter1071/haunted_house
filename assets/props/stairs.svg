@@ -1,15 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 144" role="img" aria-label="Staircase leading upward">
-  <rect x="18" y="8" width="92" height="128" rx="8" fill="#2e2b36"/>
-  <rect x="32" y="18" width="64" height="20" fill="#15131b"/>
-  <g>
-    <rect x="30" y="112" width="68" height="14" fill="#3a3546"/>
-    <rect x="35" y="94" width="58" height="14" fill="#292634"/>
-    <rect x="40" y="76" width="48" height="14" fill="#3a3546"/>
-    <rect x="45" y="58" width="38" height="14" fill="#292634"/>
-    <rect x="50" y="40" width="28" height="14" fill="#3a3546"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 144" role="img" aria-label="Old Creel House staircase leading upward toward a red psychic gate">
+  <defs>
+    <radialGradient id="stairGateGlow" cx="50%" cy="22%" r="48%">
+      <stop offset="0" stop-color="#ff5a64" stop-opacity=".34"/>
+      <stop offset="1" stop-color="#ff5a64" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="64" cy="134" rx="46" ry="8" fill="#05060a" opacity=".42"/>
+  <rect x="13" y="8" width="102" height="128" rx="9" fill="#16141d" stroke="#05060a" stroke-width="5"/>
+  <circle cx="64" cy="40" r="50" fill="url(#stairGateGlow)"/>
+  <rect x="25" y="18" width="78" height="24" rx="4" fill="#2a1720" stroke="#7b2832" stroke-width="4"/>
+  <path d="M34 36h60M34 27h60" stroke="#ff7a70" stroke-opacity=".34" stroke-width="3" stroke-linecap="round"/>
+
+  <g stroke="#05060a" stroke-width="3">
+    <path d="M25 122h78l-7-14H32z" fill="#5a3c24"/>
+    <path d="M31 106h66l-6-13H37z" fill="#3f2b20"/>
+    <path d="M37 91h54l-5-12H42z" fill="#5a3c24"/>
+    <path d="M43 77h42l-4-11H47z" fill="#3f2b20"/>
+    <path d="M49 64h30l-3-10H52z" fill="#5a3c24"/>
+    <path d="M55 52h18l-2-9H57z" fill="#3f2b20"/>
   </g>
-  <path d="M38 24v104M90 24v104" stroke="#e7c46a" stroke-opacity=".45" stroke-width="5" stroke-linecap="round"/>
-  <path d="M64 34 48 58h10v38h12V58h10z" fill="#e7c46a" opacity=".82"/>
-  <text x="64" y="131" text-anchor="middle" font-family="Trebuchet MS, Arial" font-size="14" font-weight="700" fill="#f6f0df">UP</text>
-  <rect x="18" y="8" width="92" height="128" rx="8" fill="none" stroke="#f6f0df" stroke-opacity=".22" stroke-width="3"/>
+
+  <path d="M30 24v102M98 24v102" stroke="#8a6338" stroke-width="6" stroke-linecap="round"/>
+  <path d="M37 42h54M34 60h60M31 80h66M28 102h72" stroke="#e7c46a" stroke-opacity=".32" stroke-width="3" stroke-linecap="round"/>
+  <path d="M64 34 48 58h10v39h12V58h10z" fill="#e7c46a" stroke="#05060a" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M64 33v63" stroke="#fff4b8" stroke-opacity=".36" stroke-width="3" stroke-linecap="round"/>
+  <text x="64" y="31" text-anchor="middle" font-family="Trebuchet MS, Arial" font-size="12" font-weight="700" fill="#ffb5ac">GATE</text>
+  <rect x="13" y="8" width="102" height="128" rx="9" fill="none" stroke="#e7c46a" stroke-opacity=".35" stroke-width="3"/>
 </svg>

@@ -1,16 +1,46 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 112" role="img" aria-label="Haunted library ghost">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 112" role="img" aria-label="Demogorgon-like stalking enemy with open flower head and claws">
   <defs>
-    <radialGradient id="ghostGlow" cx="50%" cy="52%" r="50%">
-      <stop offset="0" stop-color="#b7fff0" stop-opacity=".42"/>
-      <stop offset="1" stop-color="#b7fff0" stop-opacity="0"/>
+    <radialGradient id="dangerGlow" cx="50%" cy="48%" r="56%">
+      <stop offset="0" stop-color="#ff5a52" stop-opacity=".32"/>
+      <stop offset=".55" stop-color="#68202a" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#68202a" stop-opacity="0"/>
     </radialGradient>
+    <linearGradient id="monsterBody" x1="42" x2="70" y1="46" y2="102">
+      <stop offset="0" stop-color="#5a2a2a"/>
+      <stop offset=".6" stop-color="#241016"/>
+      <stop offset="1" stop-color="#0b070a"/>
+    </linearGradient>
+    <linearGradient id="petalRed" x1="30" x2="82" y1="12" y2="60">
+      <stop offset="0" stop-color="#7f2b32"/>
+      <stop offset=".7" stop-color="#2a0f16"/>
+    </linearGradient>
   </defs>
-  <circle cx="56" cy="56" r="52" fill="url(#ghostGlow)"/>
-  <path d="M28 50c0-22 13-36 28-36s28 14 28 36v31c-8 10-15-2-22 7-6 8-12-9-20-1-6 6-14 3-14-6z" fill="#b7fff0" stroke="#eafff8" stroke-width="4"/>
-  <path d="M34 52c-15-4-20-17-8-27M78 52c15-4 20-17 8-27" fill="none" stroke="#eafff8" stroke-width="5" stroke-linecap="round" opacity=".62"/>
-  <circle cx="45" cy="45" r="6" fill="#11201f"/>
-  <circle cx="67" cy="45" r="6" fill="#11201f"/>
-  <path d="M48 61c5 5 11 5 16 0" fill="none" stroke="#11201f" stroke-width="4" stroke-linecap="round"/>
-  <path d="M42 72c-4 9 4 11 0 20M56 73c-5 10 5 12 0 22M70 72c-4 9 4 11 0 20" fill="none" stroke="#11201f" stroke-width="3" stroke-linecap="round" opacity=".28"/>
-  <path d="M15 82c14-10 22-4 33-14M97 82c-14-10-22-4-33-14" fill="none" stroke="#b7fff0" stroke-width="4" stroke-linecap="round" opacity=".42"/>
+
+  <circle cx="56" cy="57" r="53" fill="url(#dangerGlow)"/>
+  <ellipse cx="56" cy="101" rx="29" ry="8" fill="#030407" opacity=".48"/>
+
+  <path d="M44 58 24 72M68 58l20 14" stroke="#17090d" stroke-width="13" stroke-linecap="round"/>
+  <path d="M26 72 14 68M26 72l-8 9M86 72l12-4M86 72l8 9" stroke="#d24a46" stroke-width="4" stroke-linecap="round"/>
+
+  <path d="M41 55c4-11 26-11 30 0l-4 34c-1 9-5 14-11 14s-10-5-11-14z" fill="url(#monsterBody)" stroke="#050407" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M48 59c1 17-1 29-6 39M56 57v43M64 59c-1 17 1 29 6 39" stroke="#9a3338" stroke-opacity=".55" stroke-width="3" stroke-linecap="round"/>
+  <path d="M46 72h20M47 84h18" stroke="#10080b" stroke-width="4" stroke-linecap="round"/>
+
+  <path d="M47 87 34 104M65 87l13 17" stroke="#12080c" stroke-width="9" stroke-linecap="round"/>
+  <path d="M34 104h-9M34 104l-5 6M78 104h9M78 104l5 6" stroke="#d24a46" stroke-width="4" stroke-linecap="round"/>
+
+  <g stroke="#050407" stroke-width="4" stroke-linejoin="round">
+    <path d="M56 39C42 28 40 14 55 5c14 9 15 23 1 34z" fill="url(#petalRed)"/>
+    <path d="M56 40C40 40 28 31 29 15c17-2 27 8 27 25z" fill="url(#petalRed)"/>
+    <path d="M56 40C72 40 84 31 83 15c-17-2-27 8-27 25z" fill="url(#petalRed)"/>
+    <path d="M55 39C42 46 33 59 39 73c15-5 22-17 16-34z" fill="url(#petalRed)"/>
+    <path d="M57 39c13 7 22 20 16 34-15-5-22-17-16-34z" fill="url(#petalRed)"/>
+  </g>
+
+  <circle cx="56" cy="42" r="14" fill="#080507" stroke="#d24a46" stroke-width="4"/>
+  <path d="M45 42h22M49 35l14 14M63 35 49 49" stroke="#ff8b72" stroke-width="2.8" stroke-linecap="round"/>
+  <circle cx="56" cy="42" r="4" fill="#ffddd0"/>
+
+  <path d="M38 20c8 9 15 15 18 22M74 20c-8 9-15 15-18 22M39 64c8-4 14-9 17-22M73 64c-8-4-14-9-17-22" fill="none" stroke="#ff6a56" stroke-opacity=".34" stroke-width="3" stroke-linecap="round"/>
+  <path d="M32 51c10 2 18 2 24-9M80 51c-10 2-18 2-24-9" fill="none" stroke="#d24a46" stroke-opacity=".34" stroke-width="4" stroke-linecap="round"/>
 </svg>

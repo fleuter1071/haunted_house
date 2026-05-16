@@ -3,28 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Haunted Estate Rescue</title>
+  <title>Hawkins: Upside Down Rescue</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main class="shell">
-    <section class="game-panel" aria-label="Haunted Estate Rescue game">
+    <section class="game-panel" aria-label="Hawkins: Upside Down Rescue game">
       <div class="top-bar">
         <div>
-          <p class="eyebrow">Haunted Estate Rescue</p>
-          <h1 id="roomName">Front Yard</h1>
+          <p class="eyebrow">Hawkins: Upside Down Rescue</p>
+          <h1 id="roomName">Hawkins Street</h1>
         </div>
         <div class="hud">
           <div class="hud-item">
             <span>Objective</span>
-            <strong id="objective">Enter the estate</strong>
+            <strong id="objective">Follow the signal</strong>
           </div>
           <div class="hud-item inventory">
             <span>Inventory</span>
             <strong id="inventory">None</strong>
           </div>
-          <div class="fear-wrap" aria-label="Fear meter">
-            <span>Fear</span>
+          <div class="fear-wrap" aria-label="Mind pressure meter">
+            <span>Mind Pressure</span>
             <div class="fear-track">
               <div id="fearFill"></div>
             </div>
@@ -32,7 +32,7 @@
         </div>
       </div>
 
-      <canvas id="game" width="960" height="600" aria-label="Playable haunted house canvas"></canvas>
+      <canvas id="game" width="960" height="600" aria-label="Playable Upside Down rescue canvas"></canvas>
 
       <div class="controls">
         <span>Move: WASD / Arrows</span>
@@ -47,22 +47,22 @@
 
   <div id="startBriefing" class="briefing-backdrop" role="dialog" aria-modal="true" aria-labelledby="briefingTitle">
     <section class="briefing-card">
-      <p class="briefing-kicker">Case File: Blackwood Estate</p>
-      <h2 id="briefingTitle">Midnight Rescue</h2>
+      <p class="briefing-kicker">Case File: Hawkins</p>
+      <h2 id="briefingTitle">Upside Down Rescue</h2>
       <p class="briefing-story">
-        Your friend vanished after following a strange green glow into Blackwood Estate.
-        Now a crazed scientist has locked them in their attic laboratory, and the house itself is trying to stop you.
+        Eleven has vanished into Vecna's grip, and Hawkins is bleeding into the Upside Down.
+        Mike follows the signal into the dark with a flashlight, a walkie, and whatever courage he has left.
       </p>
       <p class="briefing-goal">
-        Find the stair key, survive the haunted rooms, disable the lab's power nodes, and rescue your friend before fear takes over.
+        Find the signal key, decode the hidden pattern, break Vecna's psychic anchors, and rescue Eleven before the mind pressure takes over.
       </p>
       <div class="briefing-controls" aria-label="Game controls">
         <span><strong>WASD / Arrows</strong> Move</span>
         <span><strong>Space</strong> Flashlight</span>
         <span><strong>E</strong> Interact</span>
       </div>
-      <p class="briefing-footer">Stay in the light. Trust the clues. Do not let fear win.</p>
-      <button id="startButton" class="start-button" type="button">Enter the Estate</button>
+      <p class="briefing-footer">Stay in the light. Trust the signal. Do not let Vecna in.</p>
+      <button id="startButton" class="start-button" type="button">Enter Hawkins</button>
     </section>
   </div>
 

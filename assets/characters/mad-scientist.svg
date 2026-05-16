@@ -1,24 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 144" role="img" aria-label="Crazed scientist in lab coat with glowing vial">
-  <ellipse cx="56" cy="130" rx="34" ry="9" fill="#05060a" opacity=".38"/>
-  <path d="M28 61c4-18 14-29 28-29s24 11 28 29l-5 52c-2 12-10 20-23 20s-21-8-23-20z" fill="#f6f0df" stroke="#05060a" stroke-opacity=".72" stroke-width="5"/>
-  <path d="M41 61h30l-5 56H46z" fill="#2a2630"/>
-  <path d="M56 62v55M41 75h30" stroke="#05060a" stroke-opacity=".42" stroke-width="3"/>
-  <path d="M36 27 19 15l21 1-6-15 17 11L61 0l6 18 18-9-8 16 20 2-22 9" fill="#f6f0df" stroke="#05060a" stroke-opacity=".62" stroke-width="4" stroke-linejoin="round"/>
-  <circle cx="56" cy="38" r="18" fill="#d9c7b3" stroke="#05060a" stroke-opacity=".72" stroke-width="4"/>
-  <path d="M40 36c8-5 24-5 32 0" stroke="#5a3c24" stroke-width="5" stroke-linecap="round"/>
-  <circle cx="48" cy="40" r="7" fill="#151926" stroke="#74f2a3" stroke-width="3"/>
-  <circle cx="64" cy="40" r="7" fill="#151926" stroke="#74f2a3" stroke-width="3"/>
-  <path d="M55 40h2" stroke="#74f2a3" stroke-width="3" stroke-linecap="round"/>
-  <circle cx="48" cy="40" r="2" fill="#74f2a3"/>
-  <circle cx="64" cy="40" r="2" fill="#74f2a3"/>
-  <path d="M49 53c5 4 10 4 15 0" stroke="#5a3c24" stroke-width="3" stroke-linecap="round"/>
-  <path d="M33 71 14 89M79 71l19 8" stroke="#d9c7b3" stroke-width="8" stroke-linecap="round"/>
-  <path d="M15 88h22" stroke="#74f2a3" stroke-width="5" stroke-linecap="round"/>
-  <rect x="88" y="72" width="14" height="28" rx="5" fill="#151926" stroke="#05060a" stroke-opacity=".7" stroke-width="3"/>
-  <rect x="91" y="80" width="8" height="15" fill="#74f2a3"/>
-  <circle cx="95" cy="75" r="4" fill="#74f2a3" opacity=".75"/>
-  <path d="M42 112 34 132M70 112l8 20" stroke="#24212a" stroke-width="8" stroke-linecap="round"/>
-  <rect x="25" y="128" width="19" height="7" rx="3" fill="#151821"/>
-  <rect x="68" y="128" width="19" height="7" rx="3" fill="#151821"/>
-  <path d="M23 60c7 6 15 9 25 10M89 66c-8 4-16 5-25 4" stroke="#74f2a3" stroke-opacity=".32" stroke-width="4" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 144" role="img" aria-label="Vecna-like psychic antagonist with tendrils and clawed hands">
+  <defs>
+    <radialGradient id="vecnaAura" cx="50%" cy="45%" r="58%">
+      <stop offset="0" stop-color="#ff4f58" stop-opacity=".32"/>
+      <stop offset=".55" stop-color="#7b1f2c" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#7b1f2c" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bodyRed" x1="32" x2="78" y1="34" y2="128">
+      <stop offset="0" stop-color="#6f2730"/>
+      <stop offset=".55" stop-color="#2a1118"/>
+      <stop offset="1" stop-color="#12080d"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="56" cy="132" rx="36" ry="10" fill="#05060a" opacity=".48"/>
+  <circle cx="56" cy="65" r="62" fill="url(#vecnaAura)"/>
+
+  <path d="M18 25c13 10 24 22 31 36M94 22C80 35 69 47 63 64M15 73c19-8 35-11 49-7M97 75c-20-10-36-12-49-7" fill="none" stroke="#5f1d28" stroke-opacity=".72" stroke-width="7" stroke-linecap="round"/>
+  <path d="M26 24c14 12 24 25 31 43M87 24C74 38 65 51 59 69" fill="none" stroke="#b83b46" stroke-opacity=".38" stroke-width="3" stroke-linecap="round"/>
+
+  <path d="M30 63c3-22 12-36 26-36s23 14 26 36l-8 55c-3 12-9 18-18 18s-15-6-18-18z" fill="#08080d"/>
+  <path d="M35 60c3-18 10-30 21-30s18 12 21 30l-7 56c-2 9-7 14-14 14s-12-5-14-14z" fill="url(#bodyRed)" stroke="#06060a" stroke-width="5" stroke-linejoin="round"/>
+
+  <path d="M45 61c0 23-3 43-8 60M56 55v74M67 61c1 22 4 41 8 58" stroke="#b83b46" stroke-opacity=".6" stroke-width="3" stroke-linecap="round"/>
+  <path d="M39 76h34M40 91h32M43 106h26" stroke="#2a0f16" stroke-width="4" stroke-linecap="round"/>
+  <path d="M43 70c7 5 18 5 26 0" fill="none" stroke="#e0555d" stroke-opacity=".45" stroke-width="3" stroke-linecap="round"/>
+
+  <circle cx="56" cy="34" r="19" fill="#7a3840" stroke="#06060a" stroke-width="5"/>
+  <path d="M40 31c4-15 14-23 30-20 7 4 11 12 10 22-11-5-24-6-40-2z" fill="#1a0d10"/>
+  <path d="M37 37c3-12 10-20 20-24M75 39c-2-11-7-20-15-27" fill="none" stroke="#b83b46" stroke-width="5" stroke-linecap="round"/>
+  <path d="M42 27c7 5 19 6 29 1" fill="none" stroke="#2d1218" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="49" cy="37" r="4" fill="#9effa9" stroke="#06120a" stroke-width="2"/>
+  <circle cx="64" cy="37" r="4" fill="#9effa9" stroke="#06120a" stroke-width="2"/>
+  <path d="M50 50c4 4 9 4 14 0" fill="none" stroke="#2a0f16" stroke-width="3" stroke-linecap="round"/>
+  <path d="M57 41c-2 6-4 10-6 14M59 41c2 6 4 10 7 14" fill="none" stroke="#3a151d" stroke-width="2" stroke-linecap="round"/>
+
+  <path d="M36 67 14 91" stroke="#5a2329" stroke-width="9" stroke-linecap="round"/>
+  <path d="M76 67 101 88" stroke="#5a2329" stroke-width="9" stroke-linecap="round"/>
+  <path d="M14 91 5 91M14 91l-4 9M14 91l5 9" stroke="#b83b46" stroke-width="4" stroke-linecap="round"/>
+  <path d="M101 88h8M101 88l5 9M101 88l-4 9" stroke="#b83b46" stroke-width="4" stroke-linecap="round"/>
+
+  <path d="M44 116 35 136M68 116l9 20" stroke="#160a0e" stroke-width="9" stroke-linecap="round"/>
+  <rect x="25" y="132" width="21" height="8" rx="3" fill="#0b0709"/>
+  <rect x="66" y="132" width="21" height="8" rx="3" fill="#0b0709"/>
+
+  <path d="M24 47c12 7 24 11 36 11M88 48c-11 7-23 11-36 11" fill="none" stroke="#e0555d" stroke-opacity=".34" stroke-width="4" stroke-linecap="round"/>
+  <path d="M31 17c7 3 15 4 25 4s18-2 25-6" fill="none" stroke="#ff6d73" stroke-opacity=".24" stroke-width="5" stroke-linecap="round"/>
 </svg>
