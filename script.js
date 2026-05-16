@@ -196,6 +196,11 @@ const introMusic = new Audio("assets/audio/upside-down-theme.mp3");
 introMusic.loop = true;
 introMusic.volume = 0.55;
 introMusic.preload = "auto";
+const demogorgonSound = new Audio("assets/audio/demogorgon_sound.mp3");
+demogorgonSound.loop = true;
+demogorgonSound.volume = 0.62;
+demogorgonSound.preload = "auto";
+let demogorgonSoundBlocked = false;
 
 function rect(x, y, w, h) {
   return { x, y, w, h };
@@ -263,6 +268,41 @@ function retryIntroMusicAfterInteraction() {
   }
 }
 
+function playDemogorgonSound() {
+  if (state.roomId !== "library" || state.won) return;
+  const playAttempt = demogorgonSound.play();
+  if (!playAttempt) return;
+
+  playAttempt
+    .then(() => {
+      demogorgonSoundBlocked = false;
+    })
+    .catch(() => {
+      demogorgonSoundBlocked = true;
+    });
+}
+
+function pauseDemogorgonSound() {
+  demogorgonSound.pause();
+  demogorgonSound.currentTime = 0;
+}
+
+function updateDemogorgonSound() {
+  if (!gameStarted || state.roomId !== "library" || state.won) {
+    if (!demogorgonSound.paused) pauseDemogorgonSound();
+    return;
+  }
+
+  if (demogorgonSound.paused || demogorgonSoundBlocked) {
+    playDemogorgonSound();
+  }
+}
+
+function retryAudioAfterInteraction() {
+  retryIntroMusicAfterInteraction();
+  updateDemogorgonSound();
+}
+
 function loadAssets() {
   const entries = Object.entries(assetSources);
 
@@ -287,6 +327,8 @@ function drawAsset(name, x, y, w, h) {
 }
 
 function resetGame() {
+  pauseDemogorgonSound();
+
   for (const room of Object.values(rooms)) {
     if (room.items) room.items.forEach((item) => { item.collected = false; });
     if (room.nodes) room.nodes.forEach((node) => { node.active = true; });
@@ -360,6 +402,8 @@ function updateHud() {
 }
 
 function update(dt) {
+  updateDemogorgonSound();
+
   if (messageTimer > 0) {
     messageTimer -= dt;
     if (messageTimer <= 0) messageEl.classList.remove("show");
@@ -568,6 +612,7 @@ function handleInteract() {
       state.player.x = exit.spawn.x;
       state.player.y = exit.spawn.y;
       state.fear = Math.max(0, state.fear - 12);
+      updateDemogorgonSound();
       showMessage(exit.label);
       return;
     }
@@ -4216,7 +4261,7 @@ function loop(now) {
 
 function startGame() {
   if (gameStarted) return;
-  retryIntroMusicAfterInteraction();
+  retryAudioAfterInteraction();
   gameStarted = true;
   startBriefingEl.classList.add("hidden");
   lastTime = performance.now();
@@ -4227,7 +4272,7 @@ window.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
   const isButtonTarget = event.target.closest?.("button");
 
-  retryIntroMusicAfterInteraction();
+  retryAudioAfterInteraction();
 
   if (!isButtonTarget && ["arrowup", "arrowdown", "arrowleft", "arrowright", " ", "w", "a", "s", "d", "e"].includes(key)) {
     event.preventDefault();
@@ -4245,7 +4290,7 @@ window.addEventListener("keyup", (event) => {
   keys.delete(event.key.toLowerCase());
 });
 
-window.addEventListener("pointerdown", retryIntroMusicAfterInteraction);
+window.addEventListener("pointerdown", retryAudioAfterInteraction);
 restartButton.addEventListener("click", resetGame);
 startButton.addEventListener("click", startGame);
 musicToggleButton.addEventListener("click", toggleIntroMusic);
