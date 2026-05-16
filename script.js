@@ -8,6 +8,8 @@ const messageEl = document.getElementById("message");
 const restartButton = document.getElementById("restartButton");
 const startBriefingEl = document.getElementById("startBriefing");
 const startButton = document.getElementById("startButton");
+const musicToggleButton = document.getElementById("musicToggleButton");
+const briefingMusicToggleButton = document.getElementById("briefingMusicToggleButton");
 
 const W = canvas.width;
 const H = canvas.height;
@@ -192,9 +194,77 @@ let state;
 let lastTime = performance.now();
 let messageTimer = 0;
 let gameStarted = false;
+let introMusicEnabled = getStoredIntroMusicPreference();
+let introMusicBlocked = false;
+const introMusic = new Audio("assets/audio/upside-down-theme.mp3");
+introMusic.loop = true;
+introMusic.volume = 0.55;
+introMusic.preload = "auto";
 
 function rect(x, y, w, h) {
   return { x, y, w, h };
+}
+
+function getStoredIntroMusicPreference() {
+  try {
+    return localStorage.getItem("introMusic") !== "off";
+  } catch (error) {
+    return true;
+  }
+}
+
+function storeIntroMusicPreference() {
+  try {
+    localStorage.setItem("introMusic", introMusicEnabled ? "on" : "off");
+  } catch (error) {
+    // Private browsing or locked-down storage should not break the game.
+  }
+}
+
+function updateIntroMusicButtons() {
+  const label = introMusicEnabled ? "Intro Music On" : "Intro Music Off";
+  for (const button of [musicToggleButton, briefingMusicToggleButton]) {
+    if (!button) continue;
+    button.textContent = label;
+    button.setAttribute("aria-pressed", introMusicEnabled ? "true" : "false");
+  }
+}
+
+function playIntroMusic() {
+  if (!introMusicEnabled) return;
+  const playAttempt = introMusic.play();
+  if (!playAttempt) return;
+
+  playAttempt
+    .then(() => {
+      introMusicBlocked = false;
+    })
+    .catch(() => {
+      introMusicBlocked = true;
+    });
+}
+
+function pauseIntroMusic() {
+  introMusic.pause();
+}
+
+function toggleIntroMusic() {
+  introMusicEnabled = !introMusicEnabled;
+  storeIntroMusicPreference();
+  updateIntroMusicButtons();
+
+  if (introMusicEnabled) {
+    playIntroMusic();
+  } else {
+    introMusicBlocked = false;
+    pauseIntroMusic();
+  }
+}
+
+function retryIntroMusicAfterInteraction() {
+  if (introMusicEnabled && (introMusic.paused || introMusicBlocked)) {
+    playIntroMusic();
+  }
 }
 
 function loadAssets() {
@@ -4045,6 +4115,7 @@ function loop(now) {
 
 function startGame() {
   if (gameStarted) return;
+  retryIntroMusicAfterInteraction();
   gameStarted = true;
   startBriefingEl.classList.add("hidden");
   lastTime = performance.now();
@@ -4053,13 +4124,18 @@ function startGame() {
 
 window.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
-  if (["arrowup", "arrowdown", "arrowleft", "arrowright", " ", "w", "a", "s", "d", "e"].includes(key)) {
+  const isButtonTarget = event.target.closest?.("button");
+
+  retryIntroMusicAfterInteraction();
+
+  if (!isButtonTarget && ["arrowup", "arrowdown", "arrowleft", "arrowright", " ", "w", "a", "s", "d", "e"].includes(key)) {
     event.preventDefault();
   }
   if (!gameStarted) {
-    if (key === "enter") startGame();
+    if (key === "enter" && !isButtonTarget) startGame();
     return;
   }
+  if (isButtonTarget) return;
   if (!keys.has(key)) justPressed.add(key);
   keys.add(key);
 });
@@ -4068,10 +4144,15 @@ window.addEventListener("keyup", (event) => {
   keys.delete(event.key.toLowerCase());
 });
 
+window.addEventListener("pointerdown", retryIntroMusicAfterInteraction);
 restartButton.addEventListener("click", resetGame);
 startButton.addEventListener("click", startGame);
+musicToggleButton.addEventListener("click", toggleIntroMusic);
+briefingMusicToggleButton.addEventListener("click", toggleIntroMusic);
 
 resetGame();
+updateIntroMusicButtons();
+playIntroMusic();
 loadAssets().then(() => {
   render();
   startButton.focus();

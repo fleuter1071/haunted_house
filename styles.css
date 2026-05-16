@@ -141,6 +141,16 @@ button:focus-visible {
   background: rgba(231, 196, 106, 0.18);
 }
 
+.audio-toggle {
+  min-width: 132px;
+}
+
+.audio-toggle[aria-pressed="false"] {
+  border-color: rgba(169, 163, 181, 0.36);
+  background: rgba(169, 163, 181, 0.08);
+  color: var(--muted);
+}
+
 .message {
   position: fixed;
   left: 50%;
@@ -248,6 +258,12 @@ button:focus-visible {
   margin-bottom: 4px;
   color: var(--text);
   font-size: 0.9rem;
+}
+
+.briefing-audio-row {
+  display: flex;
+  justify-content: center;
+  margin: -6px 0 16px;
 }
 
 .briefing-footer {
