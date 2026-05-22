@@ -201,6 +201,8 @@ demogorgonSound.loop = true;
 demogorgonSound.volume = 0.62;
 demogorgonSound.preload = "auto";
 let demogorgonSoundBlocked = false;
+const DEMOGORGON_BASE_VOLUME = 0.62;
+const RIFT_DURATION = 3;
 
 function rect(x, y, w, h) {
   return { x, y, w, h };
@@ -285,6 +287,7 @@ function playDemogorgonSound() {
 function pauseDemogorgonSound() {
   demogorgonSound.pause();
   demogorgonSound.currentTime = 0;
+  demogorgonSound.volume = DEMOGORGON_BASE_VOLUME;
 }
 
 function updateDemogorgonSound() {
@@ -358,6 +361,7 @@ function resetGame() {
     },
     endingPhase: "playing",
     endingTimer: 0,
+    riftEffect: { active: false, timer: 0, duration: RIFT_DURATION },
     won: false,
     pulse: 0
   };
@@ -388,6 +392,8 @@ function updateHud() {
     objectiveEl.textContent = "Get Eleven out";
   } else if (state.roomId === "foyer" && state.inventory.includes("signal key")) {
     objectiveEl.textContent = "Open the gate to Vecna's lair";
+  } else if (state.riftEffect.active) {
+    objectiveEl.textContent = "The signal is tearing through";
   } else if (state.roomId === "library") {
     objectiveEl.textContent = getLibraryObjective();
   } else if (state.roomId === "lab") {
@@ -423,6 +429,13 @@ function update(dt) {
 
   if (state.libraryPuzzle.penaltyTimer > 0) {
     state.libraryPuzzle.penaltyTimer = Math.max(0, state.libraryPuzzle.penaltyTimer - dt);
+  }
+
+  if (state.riftEffect.active) {
+    updateRiftEffect(dt);
+    updateHud();
+    justPressed.clear();
+    return;
   }
 
   if (state.libraryPuzzle.radioOpen) {
@@ -522,16 +535,38 @@ function submitRadioFrequency() {
   const correct = puzzle.frequency.every((digit, index) => digit === puzzle.answer[index]);
 
   if (correct) {
-    puzzle.solved = true;
     puzzle.radioOpen = false;
-    state.fear = Math.max(0, state.fear - 10);
-    showMessage("The static clears. Eleven's signal breaks through. The signal key appears.");
+    startRiftEffect();
     return;
   }
 
   puzzle.penaltyTimer = 3;
   state.fear = clamp(state.fear + 16, 0, 100);
   showMessage("Static screams back. Mind Pressure rises.");
+}
+
+function startRiftEffect() {
+  if (state.libraryPuzzle.solved || state.riftEffect.active) return;
+
+  state.riftEffect.active = true;
+  state.riftEffect.timer = 0;
+  state.flashlight = true;
+  demogorgonSound.volume = 0.92;
+  showMessage("The signal locks on. The Upside Down tears open.");
+}
+
+function updateRiftEffect(dt) {
+  state.riftEffect.timer += dt;
+  state.pulse += dt;
+
+  if (state.riftEffect.timer < state.riftEffect.duration) return;
+
+  state.riftEffect.active = false;
+  state.riftEffect.timer = state.riftEffect.duration;
+  state.libraryPuzzle.solved = true;
+  state.fear = Math.max(0, state.fear - 12);
+  demogorgonSound.volume = DEMOGORGON_BASE_VOLUME;
+  showMessage("Signal found. The signal key appears.");
 }
 
 function movePlayer(dx, dy) {
@@ -700,6 +735,7 @@ function render() {
   drawEndingSequence();
   drawWinOverlay();
   drawRadioTuningOverlay();
+  drawRiftEffect();
 }
 
 function drawRoom(room) {
@@ -2769,7 +2805,7 @@ function drawClue(prop) {
 }
 
 function drawChristmasLightWall(prop) {
-  const clueVisible = state.libraryPuzzle.solved || state.libraryPuzzle.clueSeen || (
+  const clueVisible = state.libraryPuzzle.solved || state.libraryPuzzle.clueSeen || state.riftEffect.active || (
     state.flashlight && pointInFlashlight(prop.x + prop.w / 2, prop.y + prop.h / 2)
   );
   const pulse = 0.5 + Math.sin(performance.now() / 180) * 0.5;
@@ -4146,6 +4182,154 @@ function drawWinOverlay() {
   ctx.font = "20px Trebuchet MS, Arial";
   ctx.fillText("You pulled Eleven back from Vecna's hold.", W / 2, 300);
   ctx.fillText("Hawkins still has a chance.", W / 2, 326);
+}
+
+function drawRiftEffect() {
+  if (!state.riftEffect.active) return;
+
+  const timer = state.riftEffect.timer;
+  const progress = clamp(timer / state.riftEffect.duration, 0, 1);
+  const open = progress < 0.42 ? progress / 0.42 : progress < 0.82 ? 1 : (1 - progress) / 0.18;
+  const shakeX = Math.sin(timer * 48) * (1 - progress) * 5;
+  const shakeY = Math.cos(timer * 38) * (1 - progress) * 3;
+  const cx = W / 2 + shakeX;
+  const cy = H / 2 - 28 + shakeY;
+
+  ctx.save();
+
+  ctx.globalCompositeOperation = "source-over";
+  ctx.fillStyle = `rgba(43, 8, 14, ${0.18 + open * 0.22})`;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.globalCompositeOperation = "screen";
+  const pulse = 0.5 + Math.sin(timer * 18) * 0.5;
+  const glow = ctx.createRadialGradient(cx, cy, 20, cx, cy, 260 + open * 140);
+  glow.addColorStop(0, `rgba(255, 82, 92, ${0.34 + pulse * 0.18})`);
+  glow.addColorStop(0.34, `rgba(116, 242, 163, ${0.08 * open})`);
+  glow.addColorStop(1, "rgba(255, 82, 92, 0)");
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 330, 0, Math.PI * 2);
+  ctx.fill();
+
+  drawRiftTear(cx, cy, open, timer);
+  drawRiftVines(cx, cy, open, timer);
+  drawRiftSpores(open, timer);
+  drawRiftStaticBands(open, timer);
+
+  if (progress > 0.55) {
+    ctx.globalCompositeOperation = "source-over";
+    ctx.textAlign = "center";
+    ctx.fillStyle = `rgba(246, 240, 223, ${Math.min(1, (progress - 0.55) / 0.16)})`;
+    ctx.font = "700 34px Trebuchet MS, Arial";
+    ctx.fillText("SIGNAL FOUND", W / 2, 122);
+    ctx.font = "14px Trebuchet MS, Arial";
+    ctx.fillStyle = `rgba(116, 242, 163, ${Math.min(1, (progress - 0.55) / 0.16)})`;
+    ctx.fillText("FOUR  ONE  FIVE", W / 2, 148);
+  }
+
+  if (progress > 0.88) {
+    ctx.globalCompositeOperation = "screen";
+    ctx.fillStyle = `rgba(255, 244, 184, ${(progress - 0.88) / 0.12 * 0.36})`;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  ctx.restore();
+}
+
+function drawRiftTear(cx, cy, open, timer) {
+  const halfHeight = 145 * open;
+  const halfWidth = 30 + 42 * open;
+  const points = [];
+
+  for (let i = 0; i <= 12; i += 1) {
+    const y = cy - halfHeight + (i / 12) * halfHeight * 2;
+    const wobble = Math.sin(i * 1.7 + timer * 12) * (16 + open * 12);
+    const x = cx - halfWidth - Math.abs(Math.sin(i * 2.3)) * 28 * open + wobble;
+    points.push([x, y]);
+  }
+
+  for (let i = 12; i >= 0; i -= 1) {
+    const y = cy - halfHeight + (i / 12) * halfHeight * 2;
+    const wobble = Math.cos(i * 1.9 + timer * 10) * (14 + open * 10);
+    const x = cx + halfWidth + Math.abs(Math.cos(i * 2.1)) * 30 * open + wobble;
+    points.push([x, y]);
+  }
+
+  ctx.globalCompositeOperation = "source-over";
+  ctx.fillStyle = "rgba(3, 4, 8, 0.88)";
+  ctx.strokeStyle = `rgba(255, 82, 92, ${0.62 + open * 0.26})`;
+  ctx.lineWidth = 7;
+  ctx.beginPath();
+  points.forEach(([x, y], index) => {
+    if (index === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.globalCompositeOperation = "screen";
+  ctx.strokeStyle = `rgba(255, 244, 184, ${0.18 + open * 0.22})`;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - halfHeight * 0.78);
+  for (let i = 0; i < 8; i += 1) {
+    ctx.lineTo(cx + Math.sin(i * 2.2 + timer * 20) * halfWidth * 0.75, cy - halfHeight * 0.6 + i * halfHeight * 0.18);
+  }
+  ctx.stroke();
+}
+
+function drawRiftVines(cx, cy, open, timer) {
+  ctx.globalCompositeOperation = "source-over";
+  ctx.lineCap = "round";
+
+  for (let i = 0; i < 12; i += 1) {
+    const side = i % 2 === 0 ? -1 : 1;
+    const startY = cy - 118 * open + i * 20 * open;
+    const length = (90 + (i % 4) * 26) * open;
+    const startX = cx + side * (18 + (i % 3) * 14);
+    const endX = startX + side * length;
+    const endY = startY + Math.sin(timer * 4 + i) * 18;
+
+    ctx.strokeStyle = "rgba(26, 8, 10, 0.82)";
+    ctx.lineWidth = 8 - (i % 3);
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.bezierCurveTo(startX + side * 34, startY - 24, endX - side * 26, endY + 28, endX, endY);
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(255, 82, 92, 0.24)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.bezierCurveTo(startX + side * 34, startY - 24, endX - side * 26, endY + 28, endX, endY);
+    ctx.stroke();
+  }
+}
+
+function drawRiftSpores(open, timer) {
+  ctx.globalCompositeOperation = "screen";
+
+  for (let i = 0; i < 44; i += 1) {
+    const x = (i * 83) % W;
+    const y = (H + 80 - ((timer * 48 + i * 31) % (H + 120)));
+    const radius = 1.2 + (i % 4) * 0.6;
+    ctx.fillStyle = i % 3 === 0 ? `rgba(116, 242, 163, ${0.18 * open})` : `rgba(255, 244, 184, ${0.16 * open})`;
+    ctx.beginPath();
+    ctx.arc(x + Math.sin(timer * 2 + i) * 9, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawRiftStaticBands(open, timer) {
+  ctx.globalCompositeOperation = "screen";
+  ctx.fillStyle = `rgba(143, 239, 255, ${0.035 * open})`;
+
+  for (let i = 0; i < 8; i += 1) {
+    const y = (timer * 190 + i * 83) % H;
+    ctx.fillRect(0, y, W, 3 + (i % 3));
+  }
 }
 
 function drawRadioTuningOverlay() {
