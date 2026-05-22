@@ -296,6 +296,10 @@ function updateDemogorgonSound() {
     return;
   }
 
+  if (!state.riftEffect?.active) {
+    demogorgonSound.volume = getMindPressureStage() === "critical" ? 0.9 : DEMOGORGON_BASE_VOLUME;
+  }
+
   if (demogorgonSound.paused || demogorgonSoundBlocked) {
     playDemogorgonSound();
   }
@@ -736,6 +740,7 @@ function render() {
   drawWinOverlay();
   drawRadioTuningOverlay();
   drawRiftEffect();
+  drawVecnaVision();
 }
 
 function drawRoom(room) {
@@ -4330,6 +4335,109 @@ function drawRiftStaticBands(open, timer) {
     const y = (timer * 190 + i * 83) % H;
     ctx.fillRect(0, y, W, 3 + (i % 3));
   }
+}
+
+function getMindPressureStage() {
+  if (!state || state.won || state.riftEffect?.active) return "normal";
+  if (state.fear >= 90) return "critical";
+  if (state.fear >= 75) return "haunted";
+  if (state.fear >= 50) return "uneasy";
+  return "normal";
+}
+
+function drawVecnaVision() {
+  const stage = getMindPressureStage();
+  if (stage === "normal") return;
+
+  const pressure = clamp(state.fear / 100, 0, 1);
+  const now = performance.now() / 1000;
+  const pulse = 0.5 + Math.sin(now * 8) * 0.5;
+  const critical = stage === "critical";
+  const haunted = stage === "haunted" || critical;
+  const edgeAlpha = stage === "uneasy" ? 0.18 : haunted ? 0.28 : 0.38;
+
+  ctx.save();
+  drawVecnaVignette(edgeAlpha, pressure, pulse);
+  drawVecnaStatic(stage, pressure, now);
+  if (haunted) drawVecnaShadow(stage, pressure, now);
+  if (critical) drawVecnaWarning(pulse, now);
+  ctx.restore();
+}
+
+function drawVecnaVignette(edgeAlpha, pressure, pulse) {
+  ctx.globalCompositeOperation = "source-over";
+  const vignette = ctx.createRadialGradient(W / 2, H / 2, 120, W / 2, H / 2, 560);
+  vignette.addColorStop(0, "rgba(0, 0, 0, 0)");
+  vignette.addColorStop(0.58, `rgba(43, 8, 14, ${0.06 * pressure})`);
+  vignette.addColorStop(1, `rgba(43, 3, 10, ${edgeAlpha + pulse * 0.06})`);
+  ctx.fillStyle = vignette;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.globalCompositeOperation = "screen";
+  ctx.strokeStyle = `rgba(255, 82, 92, ${0.1 + pressure * 0.12})`;
+  ctx.lineWidth = 5;
+  ctx.strokeRect(12, 12, W - 24, H - 24);
+}
+
+function drawVecnaStatic(stage, pressure, now) {
+  const bands = stage === "uneasy" ? 3 : stage === "haunted" ? 6 : 10;
+  ctx.globalCompositeOperation = "screen";
+
+  for (let i = 0; i < bands; i += 1) {
+    const y = (now * (84 + pressure * 120) + i * 71) % H;
+    const alpha = 0.025 + pressure * 0.035 + (i % 2) * 0.012;
+    ctx.fillStyle = i % 3 === 0 ? `rgba(143, 239, 255, ${alpha})` : `rgba(255, 82, 92, ${alpha})`;
+    ctx.fillRect(0, y, W, 2 + (i % 3));
+  }
+}
+
+function drawVecnaShadow(stage, pressure, now) {
+  const flash = Math.sin(now * (stage === "critical" ? 5.4 : 3.2));
+  if (flash < 0.82) return;
+
+  const side = Math.sin(now * 1.7) > 0 ? 1 : -1;
+  const x = side > 0 ? W - 92 : 92;
+  const y = 212 + Math.sin(now * 2.1) * 24;
+  const alpha = (flash - 0.82) / 0.18 * (stage === "critical" ? 0.32 : 0.22);
+
+  ctx.globalCompositeOperation = "source-over";
+  ctx.fillStyle = `rgba(4, 4, 8, ${alpha})`;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 112, 34, 14, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x, y, 24 + pressure * 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x - 28, y + 24);
+  ctx.quadraticCurveTo(x, y + 62, x + 30, y + 24);
+  ctx.lineTo(x + 22, y + 112);
+  ctx.quadraticCurveTo(x, y + 130, x - 22, y + 112);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.globalCompositeOperation = "screen";
+  ctx.strokeStyle = `rgba(255, 82, 92, ${alpha * 0.75})`;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(x, y, 38, -0.2, Math.PI * 1.35);
+  ctx.stroke();
+}
+
+function drawVecnaWarning(pulse, now) {
+  const flash = Math.sin(now * 9) > 0.12;
+  if (!flash) return;
+
+  ctx.globalCompositeOperation = "source-over";
+  ctx.fillStyle = `rgba(7, 2, 6, ${0.18 + pulse * 0.12})`;
+  ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = "center";
+  ctx.font = "700 38px Trebuchet MS, Arial";
+  ctx.fillStyle = `rgba(255, 244, 184, ${0.78 + pulse * 0.22})`;
+  ctx.fillText("HE SEES YOU", W / 2, 116);
+  ctx.font = "700 13px Trebuchet MS, Arial";
+  ctx.fillStyle = `rgba(255, 82, 92, ${0.72 + pulse * 0.2})`;
+  ctx.fillText("MOVE. BREATHE. FIND THE LIGHT.", W / 2, 143);
 }
 
 function drawRadioTuningOverlay() {
