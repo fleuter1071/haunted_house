@@ -102,3 +102,14 @@ This file records durable project/session notes for future work.
 - **Key learnings that you can bring with you to future sessions:** The best small “wow” features often amplify an existing success moment rather than adding a new system. Delaying reward reveal by a short state machine can make the reward feel earned, as long as the delay is brief and visually satisfying.
 - **Remaining TODOs:** Playtest whether the rift duration, flash intensity, text placement, and Demogorgon volume spike feel balanced. Consider adding a similar but smaller rift transition when entering Vecna's Mind Lair.
 - **Next steps:** If more cinematic moments are added, create a small shared effect system instead of adding many one-off Canvas overlay helpers.
+
+### 2026-05-23 00:00 - Vecna Vision Mind Pressure Effects
+
+- **Feature name, work name, description, and value provided:** Added Vecna Vision pressure effects, then pushed them to production in commit `9714896`. Mind Pressure now creates visible tension through staged screen effects, making the existing meter feel like a living threat rather than only a HUD bar.
+- **Files changed:** `script.js`, `PROJECT_MEMORY.md`
+- **Technical Architecture changes or key technical decisions made:** Added pressure-stage logic via `getMindPressureStage()` and Canvas overlay helpers: `drawVecnaVision()`, `drawVecnaVignette()`, `drawVecnaStatic()`, `drawVecnaShadow()`, and `drawVecnaWarning()`. The effect is rendered after normal gameplay/rift overlays and is skipped during the rift and after victory. The Demogorgon study sound now temporarily boosts volume at critical pressure unless the rift is active.
+- **Assumptions:** Pressure effects should escalate at 50, 75, and 90 Mind Pressure. The first version should avoid new assets and use code-drawn overlays so it stays lightweight. Critical pressure should feel urgent, but not fully hide the playfield.
+- **Known limitations:** No screenshot or gameplay regression test verifies visual readability. Effects are Canvas-coded and may need tuning after playtesting. The audio spike only applies while the Demogorgon room sound is active in the study.
+- **Key learnings that you can bring with you to future sessions:** Existing meters become more meaningful when the world reacts to them. Low-lift wow features can come from connecting existing state, audio, and rendering layers rather than adding new content.
+- **Remaining TODOs:** Playtest thresholds and opacity values, especially at 90+ pressure. Confirm warning text does not obstruct key gameplay moments. Consider adding a future global sound-effects toggle if more non-music sounds are added.
+- **Next steps:** If pressure effects expand, centralize all gameplay overlays into a small effect manager so rift, Vecna Vision, ending, and future effects do not compete for draw order.

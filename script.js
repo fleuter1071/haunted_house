@@ -73,7 +73,9 @@ const rooms = {
     exits: [
       { x: 454, y: 278, w: 52, h: 42, to: "foyer", spawn: { x: 480, y: 500 }, label: "Enter the Creel House" }
     ],
-    items: [],
+    items: [
+      { id: "song-cassette", name: "rescue song", x: 610, y: 492, collected: false, type: "cassette" }
+    ],
     enemies: []
   },
   foyer: {
@@ -200,9 +202,15 @@ const demogorgonSound = new Audio("assets/audio/demogorgon_sound.mp3");
 demogorgonSound.loop = true;
 demogorgonSound.volume = 0.62;
 demogorgonSound.preload = "auto";
+const rescueTapeSound = new Audio("assets/audio/running_up_that_hill.mp3");
+rescueTapeSound.loop = false;
+rescueTapeSound.volume = 0.82;
+rescueTapeSound.preload = "auto";
 let demogorgonSoundBlocked = false;
+let introPausedForRescueTape = false;
 const DEMOGORGON_BASE_VOLUME = 0.62;
 const RIFT_DURATION = 3;
+const RESCUE_FOCUS_DURATION = 2.4;
 
 function rect(x, y, w, h) {
   return { x, y, w, h };
@@ -335,6 +343,9 @@ function drawAsset(name, x, y, w, h) {
 
 function resetGame() {
   pauseDemogorgonSound();
+  rescueTapeSound.pause();
+  rescueTapeSound.currentTime = 0;
+  introPausedForRescueTape = false;
 
   for (const room of Object.values(rooms)) {
     if (room.items) room.items.forEach((item) => { item.collected = false; });
@@ -365,7 +376,10 @@ function resetGame() {
     },
     endingPhase: "playing",
     endingTimer: 0,
+    rescueFocus: 0,
     riftEffect: { active: false, timer: 0, duration: RIFT_DURATION },
+    songBoostActive: false,
+    roomTitleTimer: 1.8,
     won: false,
     pulse: 0
   };
@@ -392,6 +406,8 @@ function updateHud() {
     objectiveEl.textContent = "Eleven is safe";
   } else if (state.endingPhase === "chamberOpening") {
     objectiveEl.textContent = "Vecna's hold is breaking";
+  } else if (state.endingPhase === "holdLight") {
+    objectiveEl.textContent = "Hold the light on the vines";
   } else if (state.endingPhase === "reunited") {
     objectiveEl.textContent = "Get Eleven out";
   } else if (state.roomId === "foyer" && state.inventory.includes("signal key")) {
@@ -418,6 +434,7 @@ function update(dt) {
     messageTimer -= dt;
     if (messageTimer <= 0) messageEl.classList.remove("show");
   }
+  if (state.roomTitleTimer > 0) state.roomTitleTimer = Math.max(0, state.roomTitleTimer - dt);
 
   if (state.won) {
     state.pulse += dt;
@@ -467,6 +484,10 @@ function handleInput(dt) {
   if (justPressed.has(" ")) {
     state.flashlight = !state.flashlight;
     showMessage(state.flashlight ? "Flashlight on." : "Flashlight off.");
+  }
+
+  if (justPressed.has("q")) {
+    useRescueTape();
   }
 
   let dx = 0;
@@ -602,7 +623,8 @@ function updateEnemies(dt) {
     const distance = Math.hypot(dx, dy);
     const slowed = state.flashlight && pointInFlashlight(enemy.x, enemy.y);
     const alerted = state.roomId === "library" && state.libraryPuzzle.penaltyTimer > 0;
-    const speed = enemy.speed * (alerted ? 1.65 : 1) * (slowed ? 0.32 : 1);
+    const songSlow = isSongBoostActive() ? 0.5 : 1;
+    const speed = enemy.speed * (alerted ? 1.65 : 1) * (slowed ? 0.32 : 1) * songSlow;
 
     if (distance < 4) {
       enemy.target = (enemy.target + 1) % enemy.path.length;
@@ -625,6 +647,8 @@ function updateFear(dt) {
     }
   }
 
+  if (isSongBoostActive()) pressure -= 18;
+
   state.fear = clamp(state.fear + pressure * dt, 0, 100);
   if (state.fear >= 100) {
     const spawn = currentRoom().spawn;
@@ -633,6 +657,46 @@ function updateFear(dt) {
     state.fear = 30;
     showMessage("Mind pressure spikes. You stumble back to the room entrance.");
   }
+}
+
+function triggerSongBoost() {
+  state.songBoostActive = true;
+  state.fear = Math.max(0, state.fear - 40);
+  playRescueTapeSound();
+  showMessage(state.fear > 45 ? "The song breaks Vecna's hold." : "The song steadies you.");
+}
+
+function endSongBoost() {
+  if (!state) return;
+  state.songBoostActive = false;
+}
+
+function playRescueTapeSound() {
+  rescueTapeSound.currentTime = 0;
+  const playAttempt = rescueTapeSound.play();
+  if (!playAttempt) return;
+
+  playAttempt
+    .then(() => {
+      if (introMusicEnabled && !introMusic.paused) {
+        introPausedForRescueTape = true;
+        pauseIntroMusic();
+      }
+    })
+    .catch(() => {});
+}
+
+function useRescueTape() {
+  if (isSongBoostActive()) {
+    showMessage("The song is already breaking through.");
+    return;
+  }
+
+  const tapeIndex = state.inventory.indexOf("rescue tape");
+  if (tapeIndex === -1) return;
+
+  state.inventory.splice(tapeIndex, 1);
+  triggerSongBoost();
 }
 
 function handleInteract() {
@@ -651,6 +715,7 @@ function handleInteract() {
       state.player.x = exit.spawn.x;
       state.player.y = exit.spawn.y;
       state.fear = Math.max(0, state.fear - 12);
+      state.roomTitleTimer = 1.8;
       updateDemogorgonSound();
       showMessage(exit.label);
       return;
@@ -670,8 +735,13 @@ function handleInteract() {
     for (const item of room.items) {
       if (!item.collected && isItemVisible(item) && distanceToPlayer(item) < 44) {
         item.collected = true;
-        state.inventory.push(item.name);
-        showMessage("You found the signal key.");
+        if (item.type === "cassette") {
+          state.inventory.push("rescue tape");
+          showMessage("Rescue tape collected. Press Q when Mind Pressure spikes.");
+        } else {
+          state.inventory.push(item.name);
+          showMessage("You found the signal key.");
+        }
         return;
       }
     }
@@ -702,6 +772,7 @@ function startRescueSequence() {
   if (state.endingPhase !== "playing") return;
   state.endingPhase = "chamberOpening";
   state.endingTimer = 0;
+  state.rescueFocus = 0;
   state.flashlight = true;
   state.fear = 0;
   showMessage("The red fog splits. Eleven reaches for you.");
@@ -715,7 +786,13 @@ function updateEnding(dt) {
   if (state.endingPhase === "chamberOpening" && state.endingTimer >= 1.25) {
     state.endingPhase = "reunited";
     state.endingTimer = 0;
+    state.rescueFocus = 0;
     showMessage("You pull Eleven back. Vecna recoils.");
+    return;
+  }
+
+  if (state.endingPhase === "holdLight") {
+    updateRescueFocus(dt);
     return;
   }
 
@@ -725,6 +802,69 @@ function updateEnding(dt) {
     state.endingTimer = 0;
     showMessage("You escape the Upside Down together.");
   }
+}
+
+function updateRescueFocus(dt) {
+  updateFlashlightFacingFromKeys();
+  state.flashlight = true;
+
+  const target = getRescueVineTarget();
+  const focused = isRescueVineFocused(target);
+  const change = focused ? dt : -dt * 0.46;
+  state.rescueFocus = clamp(state.rescueFocus + change, 0, RESCUE_FOCUS_DURATION);
+
+  if (state.rescueFocus >= RESCUE_FOCUS_DURATION) {
+    state.endingPhase = "reunited";
+    state.endingTimer = 0;
+    state.rescueFocus = RESCUE_FOCUS_DURATION;
+    showMessage("The vines burn away. You pull Eleven free.");
+  }
+}
+
+function updateFlashlightFacingFromKeys() {
+  let dx = 0;
+  let dy = 0;
+  if (keys.has("arrowleft") || keys.has("a")) dx -= 1;
+  if (keys.has("arrowright") || keys.has("d")) dx += 1;
+  if (keys.has("arrowup") || keys.has("w")) dy -= 1;
+  if (keys.has("arrowdown") || keys.has("s")) dy += 1;
+
+  if (dx === 0 && dy === 0) return;
+
+  const length = Math.hypot(dx, dy);
+  state.player.vx = dx / length;
+  state.player.vy = dy / length;
+}
+
+function getRescueVineTarget() {
+  return { x: 480, y: 326 };
+}
+
+function isRescueVineFocused(target) {
+  if (!state.flashlight) return false;
+
+  const vinePoints = [
+    target,
+    { x: target.x - 38, y: target.y - 18 },
+    { x: target.x + 38, y: target.y - 18 },
+    { x: target.x - 52, y: target.y + 18 },
+    { x: target.x + 52, y: target.y + 18 }
+  ];
+
+  return vinePoints.some((point) => pointInFlashlightFocus(point.x, point.y, FLASHLIGHT_REACH * 1.05, FLASHLIGHT_SPREAD * 1.9));
+}
+
+function pointInFlashlightFocus(x, y, reach, spread) {
+  const dx = x - state.player.x;
+  const dy = y - state.player.y;
+  const distance = Math.hypot(dx, dy);
+  if (distance > reach) return false;
+  if (distance < 70) return true;
+
+  const facing = Math.atan2(state.player.vy, state.player.vx);
+  const pointAngle = Math.atan2(dy, dx);
+  const diff = Math.abs(angleDiff(facing, pointAngle));
+  return diff < spread;
 }
 
 function render() {
@@ -741,6 +881,8 @@ function render() {
   drawRadioTuningOverlay();
   drawRiftEffect();
   drawVecnaVision();
+  drawSongBoostOverlay();
+  drawRoomTitleCard();
 }
 
 function drawRoom(room) {
@@ -751,6 +893,7 @@ function drawRoom(room) {
   drawRoomAtmosphere(room);
   drawProps(room);
   drawRoomPropConnections(room);
+  drawHouseBreath(room);
 
   for (const wall of room.walls) {
     drawStyledWall(wall, room);
@@ -1263,6 +1406,101 @@ function drawRoomAtmosphere(room) {
   drawUpsideDownSpores();
   drawPsychicRoomHaze();
   ctx.restore();
+}
+
+function drawHouseBreath(room) {
+  const intensityByRoom = {
+    "Creel House Entry": 0.55,
+    "Creel House Study": 0.72,
+    "Vecna's Mind Lair": 1
+  };
+  const roomIntensity = intensityByRoom[room.name] || 0;
+  if (!roomIntensity || state.won) return;
+
+  const pressure = clamp(state.fear / 100, 0, 1);
+  const pace = 1.25 + pressure * 1.9 + (room.name === "Vecna's Mind Lair" ? 0.5 : 0);
+  const breath = 0.5 + Math.sin(state.pulse * pace * Math.PI * 2) * 0.5;
+  const jitter = pressure > 0.72 ? Math.sin(state.pulse * 19) * pressure * 2.5 : 0;
+  const alpha = roomIntensity * (0.08 + pressure * 0.1 + breath * 0.08);
+
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+
+  const centerGlow = ctx.createRadialGradient(W / 2 + jitter, H / 2, 80, W / 2 + jitter, H / 2, 430);
+  centerGlow.addColorStop(0, `rgba(255, 82, 92, ${alpha * 0.26})`);
+  centerGlow.addColorStop(0.42, `rgba(116, 242, 163, ${alpha * 0.12})`);
+  centerGlow.addColorStop(1, "rgba(255, 82, 92, 0)");
+  ctx.fillStyle = centerGlow;
+  ctx.beginPath();
+  ctx.arc(W / 2 + jitter, H / 2, 430, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = `rgba(255, 82, 92, ${alpha * 0.8})`;
+  ctx.lineWidth = 2 + breath * 2;
+  ctx.setLineDash([18, 18]);
+  ctx.strokeRect(42 - breath * 3, 42 - breath * 3, W - 84 + breath * 6, H - 84 + breath * 6);
+  ctx.setLineDash([]);
+
+  drawBreathingVeins(room, breath, pressure, alpha);
+
+  ctx.globalCompositeOperation = "source-over";
+  const edge = ctx.createRadialGradient(W / 2, H / 2, 180, W / 2, H / 2, 560);
+  edge.addColorStop(0, "rgba(0, 0, 0, 0)");
+  edge.addColorStop(1, `rgba(23, 4, 9, ${roomIntensity * (0.12 + breath * 0.08 + pressure * 0.08)})`);
+  ctx.fillStyle = edge;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.restore();
+}
+
+function drawBreathingVeins(room, breath, pressure, alpha) {
+  const patterns = {
+    "Creel House Entry": [
+      [[238, 150], [310, 218], [406, 236], [492, 312]],
+      [[718, 160], [646, 228], [566, 244], [492, 312]],
+      [[196, 432], [306, 386], [398, 414], [480, 506]]
+    ],
+    "Creel House Study": [
+      [[168, 164], [282, 198], [382, 188], [480, 238]],
+      [[798, 166], [672, 198], [580, 188], [480, 238]],
+      [[216, 470], [346, 430], [470, 472], [716, 418]]
+    ],
+    "Vecna's Mind Lair": [
+      [[120, 132], [240, 204], [366, 252], [480, 306]],
+      [[842, 134], [722, 206], [596, 252], [480, 306]],
+      [[148, 486], [286, 414], [372, 434], [480, 306]],
+      [[812, 486], [674, 414], [588, 434], [480, 306]]
+    ]
+  };
+
+  const veins = patterns[room.name] || [];
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  for (let i = 0; i < veins.length; i += 1) {
+    const vein = veins[i];
+    ctx.strokeStyle = `rgba(42, 12, 13, ${0.34 + pressure * 0.2})`;
+    ctx.lineWidth = 7 + breath * 3;
+    ctx.beginPath();
+    ctx.moveTo(vein[0][0], vein[0][1]);
+    for (let j = 1; j < vein.length - 1; j += 1) {
+      const point = vein[j];
+      const next = vein[j + 1];
+      ctx.quadraticCurveTo(point[0], point[1] + Math.sin(state.pulse * 4 + i + j) * 5, next[0], next[1]);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = `rgba(255, 82, 92, ${alpha * (0.75 + breath * 0.55)})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(vein[0][0], vein[0][1]);
+    for (let j = 1; j < vein.length - 1; j += 1) {
+      const point = vein[j];
+      const next = vein[j + 1];
+      ctx.quadraticCurveTo(point[0], point[1] + Math.sin(state.pulse * 4 + i + j) * 5, next[0], next[1]);
+    }
+    ctx.stroke();
+  }
 }
 
 function drawHawkinsStreetGround() {
@@ -3329,8 +3567,60 @@ function drawItems(room) {
 
   for (const item of room.items) {
     if (item.collected || !isItemVisible(item)) continue;
-    drawKeyItem(item);
+    if (item.type === "cassette") drawCassetteItem(item);
+    else drawKeyItem(item);
   }
+}
+
+function drawCassetteItem(item) {
+  const pulse = 0.72 + Math.sin(performance.now() / 180) * 0.16;
+
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  const glow = ctx.createRadialGradient(item.x, item.y, 4, item.x, item.y, 52);
+  glow.addColorStop(0, `rgba(231, 196, 106, ${0.18 + pulse * 0.12})`);
+  glow.addColorStop(0.58, "rgba(232, 77, 91, 0.07)");
+  glow.addColorStop(1, "rgba(231, 196, 106, 0)");
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(item.x, item.y, 52, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.32)";
+  ctx.beginPath();
+  ctx.ellipse(item.x, item.y + 20, 36, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  fillRoundRect(item.x - 34, item.y - 17, 68, 34, 5, "#2b2430");
+  ctx.strokeStyle = "#e7c46a";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(item.x - 30, item.y - 13, 60, 26);
+  fillRoundRect(item.x - 22, item.y - 8, 44, 12, 3, "#f6f0df");
+  ctx.fillStyle = "#e84d5b";
+  ctx.fillRect(item.x - 18, item.y - 5, 36, 3);
+
+  ctx.fillStyle = "#151116";
+  ctx.beginPath();
+  ctx.arc(item.x - 16, item.y + 6, 7, 0, Math.PI * 2);
+  ctx.arc(item.x + 16, item.y + 6, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(246, 240, 223, 0.72)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(item.x - 16, item.y + 6, 4, 0, Math.PI * 2);
+  ctx.arc(item.x + 16, item.y + 6, 4, 0, Math.PI * 2);
+  ctx.stroke();
+
+  if (distanceToPlayer(item) < 50) {
+    ctx.fillStyle = "#f6f0df";
+    ctx.font = "700 12px Trebuchet MS, Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("E: PLAY TAPE", item.x, item.y - 28);
+  }
+
+  ctx.restore();
 }
 
 function drawKeyItem(item) {
@@ -3941,27 +4231,29 @@ function drawHawkinsStreetLightAccents() {
 
 function clearFlashlightBeam() {
   const angle = Math.atan2(state.player.vy, state.player.vx);
+  const reach = getFlashlightReach();
 
   ctx.save();
   ctx.globalCompositeOperation = "destination-out";
   ctx.fillStyle = "#fff";
-  traceFlashlightCone(angle, FLASHLIGHT_REACH, FLASHLIGHT_SPREAD);
+  traceFlashlightCone(angle, reach, FLASHLIGHT_SPREAD);
   ctx.fill();
 
-  const feather = ctx.createRadialGradient(state.player.x, state.player.y, FLASHLIGHT_REACH * 0.62, state.player.x, state.player.y, FLASHLIGHT_REACH);
+  const feather = ctx.createRadialGradient(state.player.x, state.player.y, reach * 0.62, state.player.x, state.player.y, reach);
   feather.addColorStop(0, "rgba(255, 255, 255, 0)");
   feather.addColorStop(1, "rgba(255, 255, 255, 0.42)");
   ctx.fillStyle = feather;
-  traceFlashlightCone(angle, FLASHLIGHT_REACH, FLASHLIGHT_SPREAD);
+  traceFlashlightCone(angle, reach, FLASHLIGHT_SPREAD);
   ctx.fill();
   ctx.restore();
 }
 
 function brightenFlashlightBeam(room) {
   const angle = Math.atan2(state.player.vy, state.player.vx);
+  const reach = getFlashlightReach();
 
   ctx.save();
-  traceFlashlightCone(angle, FLASHLIGHT_REACH * 0.96, FLASHLIGHT_SPREAD * 0.96);
+  traceFlashlightCone(angle, reach * 0.96, FLASHLIGHT_SPREAD * 0.96);
   ctx.clip();
   ctx.filter = "brightness(2.15) contrast(1.12) saturate(1.12)";
   drawRoom(room);
@@ -4014,6 +4306,10 @@ function drawEndingSequence() {
 
   if (state.endingPhase === "chamberOpening") {
     drawChamberBurst(centerX, centerY);
+  }
+
+  if (state.endingPhase === "holdLight") {
+    drawHoldLightFinale();
   }
 
   if (state.endingPhase === "reunited" || state.endingPhase === "complete" || state.won) {
@@ -4083,6 +4379,103 @@ function drawReunionMoment() {
   drawFreedFriend(friendX, friendY);
   drawReunionSparks(midX, midY);
   drawScientistDefeatCue();
+}
+
+function drawHoldLightFinale() {
+  const target = getRescueVineTarget();
+  const progress = state.rescueFocus / RESCUE_FOCUS_DURATION;
+  const focused = isRescueVineFocused(target);
+
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  const focusGlow = ctx.createRadialGradient(target.x, target.y, 8, target.x, target.y, focused ? 154 : 96);
+  focusGlow.addColorStop(0, focused ? "rgba(255, 244, 184, 0.46)" : "rgba(255, 82, 92, 0.2)");
+  focusGlow.addColorStop(0.48, focused ? "rgba(116, 242, 163, 0.2)" : "rgba(255, 82, 92, 0.08)");
+  focusGlow.addColorStop(1, "rgba(255, 82, 92, 0)");
+  ctx.fillStyle = focusGlow;
+  ctx.beginPath();
+  ctx.arc(target.x, target.y, focused ? 154 : 96, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  drawFreedFriend(target.x, target.y + 8);
+  drawRescueVines(target.x, target.y, progress, focused);
+  drawRescueFocusMeter(progress, focused);
+  drawScientistDefeatCue();
+}
+
+function drawRescueVines(x, y, progress, focused) {
+  const retreat = progress * 86;
+  const pulse = Math.sin(state.pulse * 12) * 5;
+
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  for (let i = 0; i < 10; i += 1) {
+    const side = i % 2 === 0 ? -1 : 1;
+    const startX = x + side * (22 + (i % 4) * 18 + retreat);
+    const startY = y - 48 + i * 12;
+    const endX = x + side * (4 + Math.max(0, 36 - retreat * 0.5));
+    const endY = y - 24 + Math.sin(i + state.pulse * 4) * 12;
+    const controlX = x + side * (92 - retreat * 0.6);
+    const controlY = y + pulse + (i - 5) * 8;
+
+    ctx.strokeStyle = focused ? "rgba(45, 15, 14, 0.72)" : "rgba(22, 8, 10, 0.88)";
+    ctx.lineWidth = 9 - (i % 3);
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.quadraticCurveTo(controlX, controlY, endX, endY);
+    ctx.stroke();
+
+    ctx.strokeStyle = focused ? "rgba(255, 244, 184, 0.46)" : "rgba(255, 82, 92, 0.26)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.quadraticCurveTo(controlX, controlY, endX, endY);
+    ctx.stroke();
+  }
+
+  if (focused) {
+    ctx.globalCompositeOperation = "screen";
+    ctx.fillStyle = "rgba(255, 244, 184, 0.78)";
+    for (let i = 0; i < 16; i += 1) {
+      const angle = i * 0.72 + state.pulse * 2;
+      const radius = 24 + (i % 4) * 13;
+      ctx.beginPath();
+      ctx.arc(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius, 2.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.restore();
+}
+
+function drawRescueFocusMeter(progress, focused) {
+  const x = W / 2 - 138;
+  const y = 74;
+  const w = 276;
+  const h = 18;
+
+  ctx.save();
+  fillRoundRect(x, y, w, h, 9, "rgba(5, 6, 10, 0.72)");
+  ctx.strokeStyle = focused ? "rgba(255, 244, 184, 0.72)" : "rgba(255, 82, 92, 0.58)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x + 2, y + 2, w - 4, h - 4);
+
+  const fillW = Math.max(8, (w - 6) * progress);
+  const gradient = ctx.createLinearGradient(x + 3, y, x + w - 3, y);
+  gradient.addColorStop(0, "#e84d5b");
+  gradient.addColorStop(0.62, "#e7c46a");
+  gradient.addColorStop(1, "#74f2a3");
+  ctx.fillStyle = gradient;
+  fillRoundRect(x + 3, y + 3, fillW, h - 6, 7, gradient);
+
+  ctx.fillStyle = "#f6f0df";
+  ctx.font = "700 13px Trebuchet MS, Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(focused ? "HOLD THE LIGHT" : "AIM AT THE VINES", W / 2, y - 10);
+  ctx.restore();
 }
 
 function drawFreedFriend(x, y) {
@@ -4440,6 +4833,142 @@ function drawVecnaWarning(pulse, now) {
   ctx.fillText("MOVE. BREATHE. FIND THE LIGHT.", W / 2, 143);
 }
 
+function drawSongBoostOverlay() {
+  if (!isSongBoostActive() || state.won) return;
+
+  const duration = rescueTapeSound.duration && Number.isFinite(rescueTapeSound.duration)
+    ? rescueTapeSound.duration
+    : Math.max(1, rescueTapeSound.currentTime || 1);
+  const remaining = Math.max(0, duration - rescueTapeSound.currentTime);
+  const progress = clamp(remaining / duration, 0, 1);
+  const fade = Math.min(1, remaining / 1.2);
+  const pulse = 0.5 + Math.sin(performance.now() / 120) * 0.5;
+
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  const warmth = ctx.createRadialGradient(W / 2, H / 2, 80, W / 2, H / 2, 540);
+  warmth.addColorStop(0, `rgba(231, 196, 106, ${0.07 * fade})`);
+  warmth.addColorStop(0.48, `rgba(232, 77, 91, ${0.045 * fade})`);
+  warmth.addColorStop(1, "rgba(231, 196, 106, 0)");
+  ctx.fillStyle = warmth;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = `rgba(255, 244, 184, ${0.14 * fade})`;
+  for (let i = 0; i < 10; i += 1) {
+    const x = (i * 97 + performance.now() / 28) % W;
+    const y = 112 + ((i * 89 + performance.now() / 42) % (H - 220));
+    drawMusicNote(x, y, 0.58 + (i % 3) * 0.12);
+  }
+
+  ctx.globalCompositeOperation = "source-over";
+  if (rescueTapeSound.currentTime < 2.2) {
+    ctx.textAlign = "center";
+    ctx.fillStyle = `rgba(255, 244, 184, ${0.62 + pulse * 0.16})`;
+    ctx.font = "700 26px Trebuchet MS, Arial";
+    ctx.fillText("MUSIC BREAKS THE TRANCE", W / 2, 116);
+    ctx.fillStyle = `rgba(116, 242, 163, ${0.56 + pulse * 0.16})`;
+    ctx.font = "700 13px Trebuchet MS, Arial";
+    ctx.fillText("RUN FOR THE LIGHT", W / 2, 143);
+  }
+
+  const meterW = 190;
+  const meterX = W - meterW - 28;
+  const meterY = H - 54;
+  fillRoundRect(meterX, meterY, meterW, 13, 7, "rgba(5, 6, 10, 0.58)");
+  ctx.fillStyle = "rgba(231, 196, 106, 0.86)";
+  fillRoundRect(meterX + 2, meterY + 2, Math.max(6, (meterW - 4) * progress), 9, 5, ctx.fillStyle);
+  ctx.fillStyle = "rgba(246, 240, 223, 0.78)";
+  ctx.font = "700 10px Trebuchet MS, Arial";
+  ctx.textAlign = "right";
+  ctx.fillText("SONG BOOST", meterX + meterW, meterY - 8);
+  ctx.restore();
+}
+
+function drawMusicNote(x, y, scale) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  ctx.fillRect(0, -22, 4, 28);
+  ctx.fillRect(4, -22, 13, 3);
+  ctx.beginPath();
+  ctx.ellipse(-4, 7, 9, 6, -0.35, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function getRoomTitleCard(roomId) {
+  const cards = {
+    yard: { chapter: "HAWKINS STREET", subtitle: "Chapter 00: The Signal" },
+    foyer: { chapter: "CREEL HOUSE", subtitle: "Chapter 01: The Door Opens" },
+    library: { chapter: "THE STUDY", subtitle: "Chapter 02: The Signal" },
+    lab: { chapter: "MIND LAIR", subtitle: "Chapter 03: Vecna's Hold" }
+  };
+  return cards[roomId] || { chapter: currentRoom().name.toUpperCase(), subtitle: "Chapter ??" };
+}
+
+function drawRoomTitleCard() {
+  if (!state.roomTitleTimer || state.roomTitleTimer <= 0 || state.won) return;
+
+  const total = 1.8;
+  const remaining = state.roomTitleTimer;
+  const elapsed = total - remaining;
+  const fadeIn = clamp(elapsed / 0.24, 0, 1);
+  const fadeOut = clamp(remaining / 0.42, 0, 1);
+  const alpha = Math.min(fadeIn, fadeOut);
+  if (alpha <= 0) return;
+
+  const card = getRoomTitleCard(state.roomId);
+  const flicker = 0.88 + Math.sin(performance.now() / 34) * 0.08 + Math.sin(performance.now() / 71) * 0.04;
+  const textAlpha = clamp(alpha * flicker, 0, 1);
+
+  ctx.save();
+  ctx.globalCompositeOperation = "source-over";
+  ctx.fillStyle = `rgba(3, 4, 8, ${0.28 * alpha})`;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.globalCompositeOperation = "screen";
+  ctx.fillStyle = `rgba(255, 82, 92, ${0.05 * alpha})`;
+  ctx.fillRect(0, 0, W, H);
+  drawTitleStatic(alpha, elapsed);
+
+  ctx.globalCompositeOperation = "source-over";
+  ctx.textAlign = "center";
+  ctx.fillStyle = `rgba(232, 77, 91, ${textAlpha})`;
+  ctx.font = "700 44px Trebuchet MS, Arial";
+  ctx.fillText(card.chapter, W / 2 + Math.sin(elapsed * 28) * 1.5, H / 2 - 18);
+
+  ctx.fillStyle = `rgba(231, 196, 106, ${0.78 * textAlpha})`;
+  ctx.font = "700 14px Trebuchet MS, Arial";
+  ctx.fillText(card.subtitle.toUpperCase(), W / 2, H / 2 + 16);
+
+  ctx.fillStyle = `rgba(246, 240, 223, ${0.6 * textAlpha})`;
+  ctx.font = "11px Trebuchet MS, Arial";
+  ctx.fillText("NOV 6 1983 // 11:47 PM", W / 2, H / 2 + 42);
+
+  ctx.textAlign = "left";
+  ctx.fillStyle = `rgba(116, 242, 163, ${0.5 * textAlpha})`;
+  ctx.font = "700 10px Trebuchet MS, Arial";
+  ctx.fillText("VHS // SIGNAL LOCK", 52, 54);
+  ctx.textAlign = "right";
+  ctx.fillText("REC", W - 52, 54);
+  ctx.restore();
+}
+
+function drawTitleStatic(alpha, elapsed) {
+  ctx.fillStyle = `rgba(246, 240, 223, ${0.035 * alpha})`;
+  for (let y = 0; y < H; y += 6) {
+    ctx.fillRect(0, y, W, 1);
+  }
+
+  for (let i = 0; i < 7; i += 1) {
+    const y = (elapsed * 180 + i * 79) % H;
+    ctx.fillStyle = i % 2
+      ? `rgba(143, 239, 255, ${0.055 * alpha})`
+      : `rgba(255, 82, 92, ${0.06 * alpha})`;
+    ctx.fillRect(0, y, W, 2 + (i % 3));
+  }
+}
+
 function drawRadioTuningOverlay() {
   if (!state.libraryPuzzle.radioOpen) return;
 
@@ -4509,12 +5038,20 @@ function pointInFlashlight(x, y) {
   const dx = x - state.player.x;
   const dy = y - state.player.y;
   const distance = Math.hypot(dx, dy);
-  if (distance > FLASHLIGHT_REACH) return false;
+  if (distance > getFlashlightReach()) return false;
 
   const facing = Math.atan2(state.player.vy, state.player.vx);
   const pointAngle = Math.atan2(dy, dx);
   const diff = Math.abs(angleDiff(facing, pointAngle));
   return diff < FLASHLIGHT_SPREAD;
+}
+
+function getFlashlightReach() {
+  return isSongBoostActive() ? FLASHLIGHT_REACH * 1.3 : FLASHLIGHT_REACH;
+}
+
+function isSongBoostActive() {
+  return Boolean(state?.songBoostActive);
 }
 
 function circleRectOverlap(cx, cy, radius, box) {
@@ -4566,7 +5103,7 @@ window.addEventListener("keydown", (event) => {
 
   retryAudioAfterInteraction();
 
-  if (!isButtonTarget && ["arrowup", "arrowdown", "arrowleft", "arrowright", " ", "w", "a", "s", "d", "e"].includes(key)) {
+  if (!isButtonTarget && ["arrowup", "arrowdown", "arrowleft", "arrowright", " ", "w", "a", "s", "d", "e", "q"].includes(key)) {
     event.preventDefault();
   }
   if (!gameStarted) {
@@ -4580,6 +5117,13 @@ window.addEventListener("keydown", (event) => {
 
 window.addEventListener("keyup", (event) => {
   keys.delete(event.key.toLowerCase());
+});
+
+rescueTapeSound.addEventListener("ended", () => {
+  endSongBoost();
+  if (!introPausedForRescueTape) return;
+  introPausedForRescueTape = false;
+  playIntroMusic();
 });
 
 window.addEventListener("pointerdown", retryAudioAfterInteraction);
